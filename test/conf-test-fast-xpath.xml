@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  program-name="CourierTest"
+>
+
+<!--
+  enable-database-pools-restrictions="no"
+  skip-unused-pools="no"
+  check-used-databases="no"
+  common-databases="common-databases.xml"
+  transformed-conf-file="conf-mock.xml.transformed.xml"
+  assembled-conf-file="conf-mock.xml.assembled.xml"
+-->
+
+  <db-profiles>
+    <source
+      name="SecurityCacheFile"
+      type="stream"
+    >
+      <stream type="file"/>
+      <parser type="xml">
+        <namespaces>
+          <namespace name="xc" url="XmlCache"/>
+          <namespace name="mp" url="mx.MarketParameters"/>
+          <namespace name="sc" url="mx.MarketParameters.Securities"/>
+          <namespace name="scpr" url="mx.MarketParameters.Securities.Prices"/>
+        </namespaces>
+        <records-path>/GuiRoot/xc:XmlCache/xc:XmlCacheArea/mp:nickName/mp:date/sc:security/scpr:price/scpr:type/scpr:market/scpr:label/scpr:maturity</records-path>
+        <columns fast-xpath="yes">
+          <column name="AnswerStatus">/GuiRoot/@MXAnswerStatus</column>
+          <column name="InstrumentType">../../../@xc:value</column>
+          <column name="Market">../../@xc:value</column>
+          <column name="InstrumentCode">../@xc:value</column>
+          <column name="Maturity">@xc:value</column>
+          <column name="Bid">mp:ask1</column>
+          <column name="Ask">mp:bid1</column>
+          <column name="ClosePrice">mp:clo</column>
+          <column name="LastPrice">mp:lst</column>
+        </columns>
+      </parser>
+    </source>
+  </db-profiles>
+  
+  <pipelines 
+    checkpoint-interval="60" 
+    data-logging="yes" data-logging-buffered="no"
+  >
+    
+    <pipeline name="CacheExport"
+      source-db="SecurityCacheFile" source-name="CacheExport" 
+      target-db="$NULL"             target-name="CacheExport"
+    >
+      <description/>
+      
+      <base-process source-rule="main">
+        <schedule>
+          <time-table period="day">
+            <start hour="9"/>
+            <stop hour="20"/>
+            <launch-periodically minutes="30"/>
+          </time-table>
+        </schedule>
+        
+        <script>
+          <set-var name="ExportFileDir">.</set-var>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline>
+
+  </pipelines>
+
+  <source-profiles>
+    <profile name="CacheExport" wait-timeout="200">
+      <description></description>
+      <rules>
+        <rule name="main" type="all">
+          <description>main</description>
+          <transform>
+            <before>
+              <set-var name="ExportFile">[%ExportFileDir]/ExportedSecurity.xml</set-var>
+            </before>
+            <data-query>file=[%(string)ExportFile]</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="CacheExport" wait-timeout="200">
+      <description>PricesToHoney</description>
+      <portion records="100"/>
+      <rules>
+        <rule>
+          <operation><![CDATA[
+exec Courier.dbo.pmxMDCSSecuritySave
+    @InstrumentType  = [%(string) InstrumentType]
+  , @Market          = [%(string) Market]
+  , @InstrumentCode  = [%(string) InstrumentCode]
+  , @Maturity        = [%(string) Maturity]
+  , @Bid             = [%!if-value Bid '[%Bid]' else 'NULL']
+  , @Ask             = [%!if-value Ask '[%Ask]' else 'NULL']
+  , @ClosePrice      = [%!if-value ClosePrice '[%ClosePrice]' else 'NULL']
+  , @LastPrice       = [%!if-value LastPrice '[%LastPrice]' else 'NULL']
+          ]]></operation>
+        </rule>
+      </rules>
+    </profile>    
+  </target-profiles>
+
+  <logging dir="!_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="1"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="1"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="10"/>
+      </handler-->
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+</pipelines-config>

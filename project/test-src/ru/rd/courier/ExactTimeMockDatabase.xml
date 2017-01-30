@@ -1,0 +1,12 @@
+<mock-database>
+  <tables>
+
+    <table name="ScheduledClearVars" initial-records-count="0">
+      <column name="date" auto-increment="yes" type="date" date-format="yyyyMMdd HH:mm:ss.SSS"/>
+      <column name="col1" type="string" size="20"/>
+      <data>
+      </data>
+    </table>
+
+  </tables>
+</mock-database>

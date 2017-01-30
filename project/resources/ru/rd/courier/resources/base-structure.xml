@@ -1,0 +1,25 @@
+<?xml version="1.0"?> 
+<pipelines-config fattrs="common-databases,common-accounts-file,host-schedule-file,work-days-file,important-pipes-file">
+  <manager/>
+  <start-script/>
+  <db-profiles>
+    <multiple-element any="yes"/>
+  </db-profiles>
+  <pipelines>
+    <script/>
+    <pipeline multiple="y">
+      <description/>
+      <script/>
+      <base-process>
+        <script/>
+        <schedule/>
+      </base-process>
+    </pipeline>
+  </pipelines>
+  <source-profiles/>
+  <target-profiles/>
+  <logging>
+    <transfer-data/>
+    <logger multiple="y"/>
+  </logging>
+</pipelines-config>

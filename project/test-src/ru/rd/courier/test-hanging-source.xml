@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<test-config launch-count="1">
+  <pipes>
+
+    <pipe name="hanging-source" launch-amount="2">
+      <source-transform><![CDATA[
+<data-query>S RowCount=10 ColCount=2 ColPrefix=col</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+      ]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U 1.1
+U 1.2
+U 1.3
+U 1.4
+U 1.5
+U 1.6
+U 1.7
+U 1.8
+U 1.9
+U 1.10</portion>
+            </data>
+          </process>
+          <process>
+            <error>Object pool 'mock connections' failed to allocate object</error>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+  </pipes>
+</test-config>

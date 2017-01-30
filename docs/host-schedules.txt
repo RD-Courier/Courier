@@ -1,0 +1,17 @@
+('#' | '*') <HostName:WDString> <Start:Time>-<Stop:Time>, ...; 'weekend='('yes' | 'no')
+
+<WDString> - word or quoted string. Examples: SATURN, 'AAAA BBBB', 'AAAA ''BBBB'' CCCC'
+<Time> := <Hour:Digits>:<Minute:Digits>
+
+# - line is commented
+* - host disabled
+If weekend is ommited it defaults to yes.
+If a day is specified in <work-days> file hosts will work even if 'weekend' specified.
+If a pipe is specified in <important-pipes> file it will ignore time schedules but will use disable specifier.
+Example:
+
+'SATURN 2' 09:00-21:00; weekend=yes
+#Kustom    10:00-12:00, 17:45-20:00; weekend=no
+*URANUS    11:00-17:00, 17:45-21:00; weekend=no
+VSOP       10:00-17:00, 20:45-21:00; weekend=no
+KOSMOS     9:00-

@@ -1,0 +1,10 @@
+<properties 
+  content-type="text/plain" 
+  from="" 
+  to="testemail@rdxxx.ru" 
+  cc="" 
+  bcc=""
+/>
+<header>test header</header>
+<body>test body</body>
+<attachment display-name="test-attach" content-type="text/plain">test attachment</attachment>

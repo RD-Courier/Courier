@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  program-name="CourierTest"
+  default-config="conf-def.xml"
+>
+
+<!--
+  default-config="conf-def.xml"
+  enable-database-pools-restrictions="no"
+  skip-unused-pools="no"
+  check-used-databases="no"
+  common-databases="common-databases.xml"
+  transformed-conf-file="conf-mock.xml.transformed.xml"
+  assembled-conf-file="conf-mock.xml.assembled.xml"
+-->
+
+  <!--manager
+    cancel="no"
+    host="VDM-009"
+    log-state="yes"
+    stat-buffer-interval="10s"
+  /-->
+
+  <db-profiles enable-pool2="no">
+
+    <database 
+      name="gefest-ac" 
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver" 
+      url="jdbc:microsoft:sqlserver://gefest;DatabaseName=DataExpress" 
+      username="Basel" 
+      password="see2risk"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="35"
+
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+
+      check-interval-min="30"
+      check-sql="select getDate()"
+      check-wait-timeout="30" 
+
+      expire-interval-min="5"
+      expire-count="-1"
+      expire-period-min="500"
+      allocate-timeout="60s"    
+    />
+
+    <database 
+      name="gefest-mc2" 
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver" 
+      url="jdbc:microsoft:sqlserver://gefest;DatabaseName=DataExpress" 
+      username="Basel" 
+      password="see2risk"
+      cancel-auto-commit="yes"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="35"
+
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+
+      check-interval-min="30"
+      check-sql="select getDate()"
+      check-wait-timeout="30" 
+
+      expire-interval-min="5"
+      expire-count="-1"
+      expire-period-min="500"
+      allocate-timeout="60s"    
+    />
+
+    <database 
+      name="gefest-mc" 
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver" 
+      url="jdbc:microsoft:sqlserver://gefest;DatabaseName=DataExpress" 
+      username="Basel" 
+      password="see2risk"
+      cancel-auto-commit="yes"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="35"
+
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+
+      check-interval-min="30"
+      check-sql="select getDate()"
+      check-wait-timeout="30" 
+
+      expire-interval-min="5"
+      expire-count="-1"
+      expire-period-min="500"
+      allocate-timeout="60s"    
+    />
+
+    <database 
+      name="gefest3" 
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver" 
+      url="jdbc:microsoft:sqlserver://gefest;DatabaseName=DataExpress" 
+      username="Basel" 
+      password="see2risk"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="35"
+
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+
+      check-interval-min="30"
+      check-sql="select getDate()"
+      check-wait-timeout="30" 
+
+      expire-interval-min="5"
+      expire-count="-1"
+      expire-period-min="500"
+      allocate-timeout="60s"    
+    />
+
+    <database
+      name="rkplus-ac"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:rkplus:4200/Courier?CHARSET=cp1251"
+      username="kplus" 
+      password="kplus12" 
+      initial-capacity="0"
+      check-sql="SELECT 1"
+    />
+
+    <database
+      name="rkplus-mc2"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:rkplus:4200/Courier?CHARSET=cp1251"
+      username="kplus" 
+      password="kplus12" 
+      initial-capacity="0"
+      check-sql="SELECT 1"
+      cancel-auto-commit="yes"
+    />
+
+    <database
+      name="rkplus-mc"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:rkplus:4200/Courier?CHARSET=cp1251"
+      username="kplus" 
+      password="kplus12" 
+      initial-capacity="0"
+      check-sql="SELECT 1"
+      cancel-auto-commit="yes"
+    />
+
+    <database
+      name="rkplus3"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:rkplus:4200/Courier?CHARSET=cp1251"
+      username="kplus" 
+      password="kplus12" 
+      initial-capacity="0"
+      check-sql="SELECT 1"
+    />
+
+    <source
+      name="TestValues"
+      type="stream"
+      max-capacity="10"
+      wait-timeout="5000"
+    >
+      <stream type="const">
+        <data><![CDATA[TestValue1,TestValue2
+1.1,aaaa
+1.2,bbbb
+0.12345678,cccc
+2435,dddd
+6574,eeee
+4444,ffff
+]]></data>
+      </stream>
+      <parser type="csv" separator="," encoding="UTF-16">
+        <header type="csv"/>
+      </parser>
+    </source>
+
+    <mssql
+      name="dex"
+      
+      host="GEFEST" 
+      db="DataExpress"
+      username="Basel"
+      password="see2risk"
+      cancel-auto-commit="yes"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="30"
+
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+
+      check-interval-min="1"
+      check-sql="select getDate()"
+      check-wait-timeout="30" 
+
+      expire-interval-min="60"
+      expire-count="-1"
+      expire-period-min="500"
+      allocate-timeout="60s"                
+    />
+
+</db-profiles>
+  
+  <pipelines
+    data-logging="yes"
+    checkpoint-interval="200" stop-timeout="1"
+  >
+  
+    <script>
+      <operation db-name="rkplus3">
+IF OBJECT_ID ('dbo.TestCommit') IS NOT NULL
+  DROP TABLE dbo.TestCommit
+      </operation>
+      <operation db-name="rkplus3">
+CREATE TABLE dbo.TestCommit
+  (
+  id INT NOT NULL,
+  name VARCHAR(16) NOT NULL
+  )
+      </operation>
+      <operation db-name="rkplus3">
+CREATE UNIQUE NONCLUSTERED INDEX TestCommitIdx
+  ON dbo.TestCommit  (id)
+      </operation>
+      
+      <operation db-name="rkplus3">
+IF OBJECT_ID ('dbo.TestCommit2') IS NOT NULL
+  DROP TABLE dbo.TestCommit2
+      </operation>
+      <operation db-name="rkplus3">
+CREATE TABLE dbo.TestCommit2
+  (
+  id INT NOT NULL,
+  name VARCHAR(16) NOT NULL
+  )
+      </operation>
+      <operation db-name="rkplus3">
+CREATE UNIQUE NONCLUSTERED INDEX TestCommit2Idx
+  ON dbo.TestCommit2  (id)
+      </operation>
+      
+      
+      
+      <operation db-name="gefest3">
+IF OBJECT_ID ('dbo.TestCommit') IS NOT NULL
+  DROP TABLE dbo.TestCommit
+      </operation>
+      <operation db-name="gefest3">
+CREATE TABLE dbo.TestCommit
+  (
+  id INT NOT NULL,
+  name VARCHAR(16) NOT NULL
+  )
+      </operation>
+      <operation db-name="gefest3">
+CREATE UNIQUE NONCLUSTERED INDEX TestCommitIdx
+  ON dbo.TestCommit  (id)
+      </operation>
+      
+      <operation db-name="gefest3">
+IF OBJECT_ID ('dbo.TestCommit2') IS NOT NULL
+  DROP TABLE dbo.TestCommit2
+      </operation>
+      <operation db-name="gefest3">
+CREATE TABLE dbo.TestCommit2
+  (
+  id INT NOT NULL,
+  name VARCHAR(16) NOT NULL
+  )
+      </operation>
+      <operation db-name="gefest3">
+CREATE UNIQUE NONCLUSTERED INDEX TestCommit2Idx
+  ON dbo.TestCommit2  (id)
+      </operation>
+
+      <inner-script/>
+
+      <operation db-name="rkplus3">
+IF OBJECT_ID ('dbo.TestCommit') IS NOT NULL
+  DROP TABLE dbo.TestCommit
+      </operation>
+
+      <operation db-name="rkplus3">
+IF OBJECT_ID ('dbo.TestCommit2') IS NOT NULL
+  DROP TABLE dbo.TestCommit2
+      </operation>
+
+      <operation db-name="gefest3">
+IF OBJECT_ID ('dbo.TestCommit') IS NOT NULL
+  DROP TABLE dbo.TestCommit
+      </operation>
+
+      <operation db-name="gefest3">
+IF OBJECT_ID ('dbo.TestCommit2') IS NOT NULL
+  DROP TABLE dbo.TestCommit2
+      </operation>
+
+      <execute-if var-name="TestOk" value="1">
+        <then>
+          <log-message>TEST - OK</log-message>
+        </then>
+        <else>
+          <log-message>TEST - FAILED</log-message>
+        </else>
+      </execute-if>
+
+      <stop-courier/>
+    
+    </script>
+    
+    <pipeline name="pipe-pcac-off"
+      source-db="rkplus-ac"   source-name="src" 
+      target-db="rkplus-ac"   target-name="tgt-pcac-off"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="rkplus-mc2"/>
+          <set-var name="db-name3" value="rkplus3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline>    
+
+    <!--pipeline name="pipe-pcac-on"
+      source-db="rkplus-mc"   source-name="src" 
+      target-db="rkplus-mc"   target-name="tgt-pcac-on"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="rkplus-mc2"/>
+          <set-var name="db-name3" value="rkplus3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+
+    <!--pipeline name="pipe-cac-on"
+      source-db="rkplus-mc"   source-name="src" 
+      target-db="rkplus-mc"   target-name="tgt-cac-on"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="rkplus-mc2"/>
+          <set-var name="db-name3" value="rkplus3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+
+    <!--pipeline name="pipe-cac-off"
+      source-db="rkplus-ac"   source-name="src" 
+      target-db="rkplus-ac"   target-name="tgt-cac-off"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="rkplus-ac"/>
+          <set-var name="db-name3" value="rkplus3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+
+    <!--pipeline name="pipe-ms-pcac-off"
+      source-db="gefest-ac"   source-name="src" 
+      target-db="gefest-ac"   target-name="tgt-pcac-off"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="gefest-mc2"/>
+          <set-var name="db-name3" value="gefest3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+
+    <!--pipeline name="pipe-ms-pcac-on"
+      source-db="gefest-mc"   source-name="src" 
+      target-db="gefest-mc"   target-name="tgt-pcac-on"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="gefest-mc2"/>
+          <set-var name="db-name3" value="gefest3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+
+    <!--pipeline name="pipe-ms-cac-on"
+      source-db="gefest-mc"   source-name="src" 
+      target-db="gefest-mc"   target-name="tgt-cac-on"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="gefest-mc2"/>
+          <set-var name="db-name3" value="gefest3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+
+    <!--pipeline name="pipe-ms-cac-off"
+      source-db="gefest-ac"   source-name="src" 
+      target-db="gefest-ac"   target-name="tgt-cac-off"
+    >
+      <description/>
+      <base-process source-rule="main" timeout="100000">
+        <script>
+          <set-var name="db-name2" value="gefest-ac"/>
+          <set-var name="db-name3" value="gefest3"/>
+          <inner-script/>
+        </script>
+      </base-process>
+    </pipeline-->    
+  </pipelines>
+
+  <source-profiles>
+
+    <profile name="src" wait-timeout="30">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query><![CDATA[
+select TestValue1 = '1.1', TestValue2 = 'Stepochkin Alexander<testemail@rdxxx.ru>'
+union 
+select TestValue1 = '1.2', TestValue2 = 'bbbb'
+            ]]></data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+  <target-profiles>
+
+    <profile name="tgt-pcac-off" wait-timeout="30">
+      <description/>
+      <after>
+        <var-query db-name="[%db-name3]">
+select TestOk = case when 
+  (select count(*) from TestCommit) = 2
+then '1' else '0' end
+        </var-query>
+      </after>
+      <portion>
+        <before>
+declare @i int
+        </before>
+        <after>
+insert into TestCommit (id, name) values (1, 'aaaa')
+        </after>
+      </portion>
+      <rules>
+        <rule>
+          <operation>
+select @i=IsNull(max(id)+1, 1) from TestCommit
+insert into TestCommit (id, name) values (@i, [%(string) TestValue1])
+          </operation>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="tgt-pcac-on" wait-timeout="30">
+      <description/>
+      <after>
+        <var-query db-name="[%db-name3]">
+select TestOk = case when 
+  (select count(*) from TestCommit) = 0
+then '1' else '0' end
+        </var-query>
+      </after>
+      <portion>
+        <before>
+declare @i int
+        </before>
+        <after>
+insert into TestCommit (id, name) values (1, 'aaaa')
+        </after>
+      </portion>
+      <rules>
+        <rule>
+          <operation>
+select @i=IsNull(max(id)+1, 1) from TestCommit
+insert into TestCommit (id, name) values (@i, [%(string) TestValue1])
+          </operation>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="tgt-cac-off" wait-timeout="30">
+      <description/>
+      <after>
+        <var-query db-name="[%db-name3]">
+select TestOk = case when 
+  (select count(*) from TestCommit2) = 2
+then '1' else '0' end
+        </var-query>
+      </after>
+      <rules>
+        <rule>
+          <operation db-name="[%db-name2]">
+declare @i int
+select @i=IsNull(max(id)+1, 1) from TestCommit2
+insert into TestCommit2 (id, name) values (@i, [%(string) TestValue1])
+insert into TestCommit2 (id, name) values (1, 'aaaa')
+          </operation>
+          
+          <operation>
+--  [%TestValue1]
+          </operation>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="tgt-cac-on" wait-timeout="30">
+      <description/>
+      <after>
+        <var-query db-name="[%db-name3]">
+select TestOk = case when 
+  (select count(*) from TestCommit2) = 0
+then '1' else '0' end
+        </var-query>
+      </after>
+      <rules>
+        <rule>
+          <operation db-name="[%db-name2]">
+declare @i int
+select @i=IsNull(max(id)+1, 1) from TestCommit2
+insert into TestCommit2 (id, name) values (@i, [%(string) TestValue1])
+insert into TestCommit2 (id, name) values (1, 'aaaa')
+          </operation>
+          
+          <operation>
+--  [%TestValue1]
+          </operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <logging dir="_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="1"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="info">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="1"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="10"/>
+      </handler-->
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <!--logger name="schedule" level="all"/-->
+
+      <!--logger name="manager" level="debug">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="manager"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger-->
+    </logger>
+  </logging>
+
+</pipelines-config>

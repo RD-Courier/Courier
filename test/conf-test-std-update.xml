@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="sys-config.xml">
+
+<!--
+  <external-config file="???"/>
+-->
+
+  <logging dir="conf-test-std-update-logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+      <handler type="mail" level="error">
+        <param name="subject-prefix" value="Courier System: "></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+      </handler>
+
+      <logger name="sys-db" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+    <database
+      name="DataExpress"
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+      url="jdbc:microsoft:sqlserver://CRM-AM2;DatabaseName=DataExpress"
+      username="DataExpress" password="xpre$$data"
+      check-sql="SELECT 1"
+    />
+
+<!--
+    <database
+      name="TCondor"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:developer:4010/Kustom"
+      username="Reader" password="readerpwd"
+      check-sql="SELECT 1"
+    />
+-->
+
+    <receiver
+      type="file"
+      name="TCondor"
+      encoding="windows-1251"
+      prefix="split-dexDeal-"
+      postfix=".data"
+      dir="C:/Projects/IT/3D_Projects/Courier/test/temp"
+    />
+
+    <database
+      name="mock"
+      driver="ru.rd.courier.mock.jdbc.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="10"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S 1 1"
+    />
+
+    <!--
+    <receiver
+      type="ftp"
+      name="TCondor"
+      host="kplus"
+      username="condor"
+      password="condor"
+      encoding="windows-1251"
+      prefix="split-dexDeal-"
+      postfix=".data"
+      date-format="yyyyMMdd-hhmmssSSS"
+      dir="/condor/Error/Courier"
+    />
+    -->
+</db-profiles>
+
+  <source-profiles>
+
+    <profile name="dexDealSource" wait-timeout="120">
+      <description>sTest1 description</description>
+      <rules>
+        <rule name="base" type="all" interval-column="Deal_Id">
+          <description>test-all description</description>
+          <transform>
+            <portion type="interval" step="100" max-portion-size="1000000"/>
+            <data-query><![CDATA[
+SELECT * FROM dexDeal
+WHERE
+     TradeDate >= convert(varchar(12), getdate(), 112)
+ AND Deal_Id > [%$IntervalValue]
+            ]]></data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+
+    <profile name="StdUpdateTest-ALL-Source" wait-timeout="120">
+      <description>sTest1 description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test standard update - list variant</description>
+          <transform>
+            <data-query>SELECT * FROM courTestStdUpdate</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+
+  <target-profiles>
+    <profile name="dexDealTarget" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="100"/>
+      <rules>
+        <rule>
+<!--
+type
+  "standard-update" - creates destination table (optionally archive table) and stored procedure
+                      on the basis of data result set meta information.
+                      Destination table and archive structure mainly reflects structure of data
+                      result set (see time-stamp parameter description).
+table-name - destination table name
+key-names - (comma separated list) original data result set fields serving as unique index in destination table
+time-stamp - ("yes"/"no") if specified then destination and archive tables have additional time stamp field
+             storing update time.
+drop-procedure - ("yes"/"no") whether to drop procedure after process is finished.
+archive-db-name - archive database (not courier db link name)
+custom-block - arbitrary user block. You can use @ErrorCode variable in the block.
+-->
+          <operation
+            type="standard-update"
+            table-name="courTestStdUpdateTarget"
+            key-names="Deal_Id"
+            time-stamp="yes"
+            drop-procedure="no"
+            archive-db-name="DataExpress"
+          >
+            <custom-block>-- test custom block</custom-block>
+          </operation>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="StdUpdateTest-ALL-Target" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="100"/>
+      <rules>
+        <rule>
+          <operation
+            type="standard-update"
+            table-name="courTestStdUpdateTarget"
+            key-names="id"
+            time-stamp="yes"
+            drop-procedure="no"
+            archive-db-name="DataExpress"
+          >
+            <custom-block>-- test custom block</custom-block>
+          </operation>
+        </rule>
+      </rules>
+    </profile>
+
+
+<!--    <external-file name="temp-profile.xml"/> -->
+
+
+
+  </target-profiles>
+
+  <pipelines>
+<!--
+    <pipeline name="dexDealStdUpdate" 
+      source-db="DataExpress" source-name="dexDealSource" 
+      target-db="DataExpress" target-name="dexDealTarget"
+      checkpoint-interval="600" mark-type="i"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>TestPipe description</description>
+      <base-process source-rule="base" timeout="4"/>
+    </pipeline>
+-->
+
+    <pipeline name="dexDealStdUpdateTestArchive" 
+      source-db="DataExpress" source-name="StdUpdateTest-ALL-Source" 
+      target-db="mock" target-name="StdUpdateTest-ALL-Target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>TestPipe description</description>
+      <base-process source-rule="base" timeout="100000"/>
+    </pipeline>
+
+  </pipelines>
+</pipelines-config>

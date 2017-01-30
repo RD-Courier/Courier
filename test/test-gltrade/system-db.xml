@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<system-db>
+    <pipe checkpoint-interval="100" code="Chase_Deal_Position_Buffer"
+        desc="Deal_Orc_Buffer" mark-type=" " pipe-value=""/>
+</system-db>

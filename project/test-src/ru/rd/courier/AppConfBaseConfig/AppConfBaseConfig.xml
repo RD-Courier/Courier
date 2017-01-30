@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  common-databases="common-databases.xml"
+>
+
+  <start-script>
+    <set-var name="start-script-base-var">start-script-base-var value</set-var>
+  </start-script>
+  
+  <pipelines
+    data-logging="yes" 
+    data-logging-buffered="no"
+  >
+	
+	  <script>
+      <set-var name="pipelines-script-base-var">pipelines-script-base-var value</set-var>
+    </script>
+
+    <pipeline>
+  	  <script>
+        <set-var name="pipeline-script-base-var">pipeline-script-base-var value</set-var>
+      </script>
+      
+      <base-process timeout="4444">
+    	  <script>
+          <set-var name="process-script-base-var">process-script-base-var value</set-var>
+        </script>
+      </base-process>
+		</pipeline>
+
+  </pipelines>
+
+  <db-profiles>
+    
+    <receiver
+      name="base"
+      type="file"
+
+      dir="./base"
+      encoding="cp1251"
+      prefix="base-"
+      postfix=".sql"
+    />
+		
+  </db-profiles>
+
+  <logging dir="logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="3"
+    />
+  </logging>
+
+</pipelines-config>

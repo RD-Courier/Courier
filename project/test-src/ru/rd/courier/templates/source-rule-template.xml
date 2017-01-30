@@ -1,0 +1,6 @@
+        <rule name="[%name]" [%source-rule-other-attributes]>
+          <description>[%name]</description>
+          <transform>
+[%transform]
+          </transform>
+        </rule>

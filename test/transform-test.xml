@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipelines-config sys-config="sys-config.xml" database-datetime-format="yyyyMMdd HH:mm:ss.SSS" pipe-log-decorator-template="&lt;[%pipe]&gt; " process-log-decorator-template="&lt;[%pipe] : [%rule]&gt; " program-name="Courier" standard-update-proc-prefix="pcour_" enable-database-pools-restrictions="no" skip-unused-pools="no" check-used-databases="no" use-insert-tags="no">
+
+  <logging dir="logs">
+    <transfer-data pipelines-dir="pipelines" date-format="yyyy-MM-dd" file-name-prefix="data-" file-name-postfix=".log" store-days="3"/>
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""/>
+        <param name="date-format" value="yyyy-MM-dd"/>
+        <param name="file-name-prefix" value=""/>
+        <param name="file-name-postfix" value=".log"/>
+        <param name="days" value="2"/>
+      </handler>
+
+      <handler type="console" level="all"/>
+      <handler type="test" level="error"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"/>
+        <param name="from" value="CourierSystem@rdxxx.ru"/>
+        <param name="to" value="testemail@rdxxx.ru"/>
+        <param name="smtp-host" value="magician.rd.ru"/>
+        <param name="publish-stack-trace" value="yes"/>
+        <param name="same-message-interval-min" value="1"/>
+      </handler>
+
+      <logger name="sys-db" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"/>
+          <param name="date-format" value="yyyy-MM-dd"/>
+          <param name="file-name-prefix" value=""/>
+          <param name="file-name-postfix" value=".log"/>
+          <param name="days" value="2"/>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"/>
+          <param name="date-format" value="yyyy-MM-dd"/>
+          <param name="file-name-prefix" value=""/>
+          <param name="file-name-postfix" value=".log"/>
+          <param name="days" value="2"/>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+
+    <!--
+      max-consecutive-errors="2"
+    -->
+    
+    <database name="mock" driver="ru.rd.courier.jdbc.mock.MockDriver" url="jdbc:rd:mock:./logs/JdbcMockResults.out" username="" password="" initial-capacity="0" increment-capacity="1" max-capacity="-1" shrink-interval-min="-1" shrink-capacity="10" shrink-obsolete-interval-min="1" check-interval-min="-1" check-sql="S RowCount=1 ColCount=1" max-error-count="2" expire-period-min="10" allocate-timeout="5s">
+      <param name="sleep" value="0s"/>
+    </database>
+
+    
+    <database name="file-system" driver="ru.rd.courier.jdbc.FileSystem.FileSystemDriver" url="jdbc:rd:file-system" username="" password="" initial-capacity="0" increment-capacity="1" shrink-interval-min="1" shrink-capacity="10" shrink-obsolete-interval-min="1" check-interval-min="100" check-sql="check"/>
+    
+    <source name="rts-meta" type="xsl" xsl="rts-meta.xsl" target-var="DataType">
+      <xpath-columns>
+        <column name="ErrorMsg" path="/*/@ErrorMsg"/>
+      </xpath-columns>
+    </source>
+
+    <source name="file" class="ru.rd.courier.datalinks.FileSourceFactory">
+    </source>
+    
+    <source name="excel" class="ru.rd.courier.datalinks.StreamSourceFactory">
+      <stream type="url" url="file:///C:\Projects\IT\3D_Projects\Courier\test\PnL20061212.xls"/>
+      <parser type="excel" sheet-name="Portfolio feed" left-column="1" caption-row="1" date-format="yyyyMMdd HH:mm:ss.SSS">
+        <const-fields>
+          <field name="DocDate" sheet-name="Equity Options Portfolio" column="1" row="1"/>
+        </const-fields>
+      </parser>
+    </source>
+
+<!--
+
+-->
+
+    <source name="fcsm-urls" type="stream">
+      <!--stream type="url" url="file:///D:\Development\JetReport\tst\FcsmUrls.txt"/-->
+
+      <stream type="const">
+        <data>
+Desc                      , FileName         ,Url,CaptionRow,DataRow, LicenseNumberVar,INNVar ,NameVar                   ,AddressVar                    ,PhoneVar                     ,LicenseDateVar,LicensePeriodVar        ,StatusVar
+брокеры                   , brokers.xls      ,389,2         ,3      ,'номер лицензии ',ИНН    ,'Наименование Организации','Место нахождение организации','Номера контактных телефонов','дата выдачи ','срок действия         ',статус
+дилеры                    , dealers.xls      ,390,2         ,3      ,'номер лицензии ',ИНН    ,'Наименование Организации','Место нахождение организации','Номера контактных телефонов','дата выдачи ','срок действия         ',ColumnI
+доверительные управляющие , trust-funds.xls  ,391,0         ,2      ,'ColumnG        ',ColumnC,'ColumnB                 ','ColumnD                     ','ColumnF                    ','ColumnH     ','ColumnI               ',ColumnJ
+управляющие компании      , amc.xls          ,530,2         ,3      ,'Номер лицензии ',ИНН    ,'Наименование организации','Адрес                       ','Телефон, факс              ','Дата выдачи ','Срок действия лицензии','Статус лицензии'</data>
+      </stream>
+      <parser 
+        type="csv" 
+        encoding="UTF-16" 
+        skip-first-lines="1" 
+        line-number-title="LineNumber" 
+        bracket="'" 
+        separator="," 
+        trim="yes">
+        <header type="csv"/>
+      </parser>
+    </source>
+        
+    <source name="url-files" type="stream" cache-data="no">
+      <stream type="url"/>
+      <parser type="file"/>
+    </source>
+
+    <source name="null" type="null"/>
+        
+  <source name="fcsm-xls" type="stream">
+      <stream type="file"/>
+      <!--stream type="url" url="file:///D:\Development\JetReport\tst\fcsm\брокеры 01[1].05.2006.xls"/-->
+      <parser type="excel" left-column="1" need-to-trim="yes" date-format="yyyyMMdd HH:mm:ss.SSS" number-format="#.#################">
+        <const-fields>
+          <field name="Title" column="1" row="1" finish-column="unlimited" pattern=".+"/>
+        </const-fields>
+      </parser>
+    </source>
+</db-profiles>
+
+  <source-profiles>
+    <profile name="mock-src1" wait-timeout="600">
+      <description>src1 mock description</description>
+      <rules>
+        <rule interval-step="" name="base" type="all">
+          <description>test-all description</description>
+          <statements>
+<before>
+<nothing/>
+</before>
+<main>
+<rs-loop>
+<template>
+<string>##source</string>
+</template>
+<string>data-result-set</string>
+<template>
+<string>S RowCount=1 ColCount=2 ColPrefix=col</string>
+</template>
+<block>
+<array>
+<target-operations-wrapper>
+<block>
+<array>
+<object-stmt-call>
+<string>target-profile</string>
+<string>data</string>
+</object-stmt-call>
+<inc-receiver-records receiver-name="##target"/>
+<if>
+<test-var>
+<string>$last-source-record-var</string>
+<string>1</string>
+</test-var>
+<flush>
+<string>##target</string>
+</flush>
+</if>
+</array>
+</block>
+</target-operations-wrapper>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+</array>
+</block>
+<string/>
+<string>$rs-counter</string>
+<string>$last-source-record-var</string>
+</rs-loop>
+</main>
+<after>
+<nothing/>
+</after>
+<finally>
+<nothing/>
+</finally>
+</statements>
+<db-links/>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="rts-src" wait-timeout="120">
+      <description>rts-src</description>
+      <rules>
+        <rule interval-step="" name="base" type="all">
+          <description>base</description>
+          <statements>
+<before>
+<nothing/>
+</before>
+<main>
+<rs-loop>
+<template>
+<string>##source</string>
+</template>
+<string>data-result-set</string>
+<template>
+<string/>
+</template>
+<block>
+<array>
+<target-operations-wrapper>
+<block>
+<array>
+<object-stmt-call>
+<string>target-profile</string>
+<string>data</string>
+</object-stmt-call>
+<inc-receiver-records receiver-name="##target"/>
+<if>
+<test-var>
+<string>$last-source-record-var</string>
+<string>1</string>
+</test-var>
+<flush>
+<string>##target</string>
+</flush>
+</if>
+</array>
+</block>
+</target-operations-wrapper>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+</array>
+</block>
+<string/>
+<string>$rs-counter</string>
+<string>$last-source-record-var</string>
+</rs-loop>
+</main>
+<after>
+<nothing/>
+</after>
+<finally>
+<nothing/>
+</finally>
+</statements>
+<db-links/>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="FcsmFiles" wait-timeout="120">
+      <description>FcsmFiles</description>
+      <rules>
+        <rule interval-step="" name="main" type="all">
+          <description>main</description>
+          <statements>
+<before>
+<nothing/>
+</before>
+<main>
+<rs-loop>
+<string>##source</string>
+<string null="yes"/>
+<template>
+<string/>
+</template>
+<block>
+<array>
+<log-message>
+<string>info</string>
+<template>
+<string>Url=[%Url]</string>
+</template>
+</log-message>
+<rs-loop>
+<template>
+<string>url-files</string>
+</template>
+<string>data-result-set</string>
+<template>
+<string>http://www.fcsm.ru/attach.asp?a_no=[%Url] file=[%separated-dir]\[%FileName]</string>
+</template>
+<block>
+<array>
+<target-operations-wrapper>
+<block>
+<array>
+<object-stmt-call>
+<string>target-profile</string>
+<string>data</string>
+</object-stmt-call>
+<inc-receiver-records receiver-name="##target"/>
+<if>
+<test-var>
+<string>$last-source-record-var</string>
+<string>1</string>
+</test-var>
+<flush>
+<string>##target</string>
+</flush>
+</if>
+</array>
+</block>
+</target-operations-wrapper>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+</array>
+</block>
+<string/>
+<string>$rs-counter</string>
+<string>$last-source-record-var</string>
+</rs-loop>
+<flush>
+<string>##target</string>
+</flush>
+</array>
+</block>
+</rs-loop>
+</main>
+<after>
+<nothing/>
+</after>
+<finally>
+<nothing/>
+</finally>
+</statements>
+<db-links>
+<db type="source">url-files</db>
+</db-links>
+        </rule>
+      </rules>
+    </profile>
+
+  <profile name="FcsmXls" wait-timeout="120">
+      <description>FcsmXls</description>
+      <rules>
+        <rule interval-step="" name="main" type="all">
+          <description>main</description>
+          <statements>
+<before>
+<block>
+<array>
+<set-var>
+<string>Now</string>
+<template>
+<string>[%(date-format 'yyyyMMdd HH:mm:ss.SSS')!now]</string>
+</template>
+</set-var>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+</array>
+</block>
+</before>
+<main>
+<rs-loop>
+<string>##source</string>
+<string null="yes"/>
+<template>
+<string/>
+</template>
+<block>
+<array>
+<log-data>
+<string>pipeline</string>
+<template>
+<string>
+************************************************************************
+Processing File ==&gt; [%FileName]
+************************************************************************
+                </string>
+</template>
+</log-data>
+<rs-loop>
+<template>
+<string>fcsm-xls</string>
+</template>
+<string>data-result-set</string>
+<template>
+<string>file=[%separated-dir]\[%FileName] | caption-row=[%CaptionRow] data-row=[%DataRow]</string>
+</template>
+<block>
+<array>
+<target-operations-wrapper>
+<block>
+<array>
+<object-stmt-call>
+<string>target-profile</string>
+<string>data</string>
+</object-stmt-call>
+<inc-receiver-records receiver-name="##target"/>
+<if>
+<test-var>
+<string>$last-source-record-var</string>
+<string>1</string>
+</test-var>
+<flush>
+<string>##target</string>
+</flush>
+</if>
+</array>
+</block>
+</target-operations-wrapper>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+</array>
+</block>
+<string/>
+<string>$rs-counter</string>
+<string>$last-source-record-var</string>
+</rs-loop>
+<flush>
+<string>##target</string>
+</flush>
+</array>
+</block>
+</rs-loop>
+</main>
+<after>
+<nothing/>
+</after>
+<finally>
+<nothing/>
+</finally>
+</statements>
+<db-links>
+<db type="source">fcsm-xls</db>
+</db-links>
+        </rule>
+      </rules>
+    </profile>
+</source-profiles>
+
+  
+  <target-profiles>
+
+    <profile name="mock-tgt1" wait-timeout="100000">
+      <description>TestTarget1 description</description>
+      
+      <portion records="10000">
+        <before-script>
+<block>
+<array>
+<log-message>
+<string>info</string>
+<template>
+<string>portion.before-script</string>
+</template>
+</log-message>
+</array>
+</block>
+</before-script>
+        <after-script>
+<block>
+<array>
+<log-message>
+<string>info</string>
+<template>
+<string>portion.after-script</string>
+</template>
+</log-message>
+</array>
+</block>
+</after-script>
+      </portion>
+
+      <transform>
+<block>
+<array>
+<log-message>
+<string>info</string>
+<template>
+<string>[%!replace 'abcdef' '.' '$0/']</string>
+</template>
+</log-message>
+<operation>
+<string>##target</string>
+<template>
+<string>[%col1]</string>
+</template>
+</operation>
+</array>
+</block>
+</transform>
+<db-links/>
+    </profile>
+
+    <profile name="mock-tgt2" wait-timeout="100000">
+      <description>TestTarget1 description</description>
+      
+      <transform>
+<block>
+<array>
+<operation>
+<string>##target</string>
+<template>
+<string>[%col1]</string>
+</template>
+</operation>
+</array>
+</block>
+</transform>
+<db-links/>
+    </profile>
+
+    <profile name="rts-tgt" wait-timeout="600">
+      <description>rts</description>
+      <portion records="1"/>
+      <transform>
+<block>
+<array>
+<operation>
+<string>##target</string>
+<template>
+<string>T 'DocDate=[%DocDate]  |  Contract=[%Contract]  |  Res(market)=[%Res(market)]  |  Tag=[%Tag]  |  ColumnBF=[%ColumnBF]'</string>
+</template>
+</operation>
+</array>
+</block>
+</transform>
+<db-links/>
+    </profile>
+
+    <profile name="FcsmFiles" wait-timeout="120">
+      <description>FcsmFiles</description>
+      <portion records="200"/>
+      <transform>
+<block>
+<array>
+<log-message>
+<string>info</string>
+<template>
+<string>FileName=[%FileName]</string>
+</template>
+</log-message>
+<operation>
+<string>##target</string>
+<template>
+<string/>
+</template>
+</operation>
+</array>
+</block>
+</transform>
+<db-links/>
+    </profile>
+
+  <profile name="FcsmXls" wait-timeout="120">
+      <description>FcsmXls</description>
+      <portion records="200"/>
+      <transform>
+<block>
+<array>
+<set-var>
+<string>OpText</string>
+<template>
+<string>
+=============================================================
+Title=[%Title]
+Наименование Организации=[%!var-by-name NameVar]
+ИНН=[%!var-by-name INNVar]
+Почтовый адрес=[%!var-by-name AddressVar]
+Номера контактных телефонов=[%!var-by-name PhoneVar]
+Номер лицензии=[%!var-by-name LicenseNumberVar]
+Дата выдачи лицензии=[%!var-by-name LicenseDateVar]
+Окончание действия лицензии=[%!var-by-name LicensePeriodVar]
+</string>
+</template>
+</set-var>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+<operation>
+<string>##target</string>
+<template>
+<string>T [%(string)OpText]</string>
+</template>
+</operation>
+</array>
+</block>
+</transform>
+<db-links/>
+    </profile>
+</target-profiles>
+
+  <external-config file="FcsmXls.xml"/>
+
+  <pipelines checkpoint-interval="600" data-logging="yes" data-logging-buffered="no">    
+    
+    <script>
+<block>
+<array>
+<set-var>
+<string>separated-dir</string>
+<template>
+<string>C:\Projects\IT\3D_Projects\Courier\test\EDO</string>
+</template>
+</set-var>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+<object-stmt-call>
+<string>Scripts</string>
+<string>pipe</string>
+</object-stmt-call>
+</array>
+</block>
+</script>
+
+    <!--script>
+      <log-message>Pipelines Script begin</log-message>
+      <inner-script/>
+      <log-message>Pipelines Script end</log-message>
+    </script>
+
+    <pipeline name="mock"
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+    >
+      <description>mock</description>
+
+      <script>
+        <log-message>Pipeline Script begin</log-message>
+        <inner-script/>
+        <log-message>Pipeline Script end</log-message>
+      </script>
+
+      <base-process source-rule="base">
+        <script>
+          <log-message>base-process Script begin</log-message>
+          <inner-script/>
+          <log-message>base-process Script end</log-message>
+        </script>
+      </base-process>
+
+    </pipeline>
+
+    <pipeline name="mock-callee"
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt2"
+    >
+      <description>mock</description>
+
+      <script>
+        <log-message>Pipeline Script begin</log-message>
+        <inner-script/>
+        <log-message>Pipeline Script end</log-message>
+      </script>
+
+      <base-process source-rule="base">
+        <script>
+          <log-message>base-process Script begin</log-message>
+          <inner-script/>
+          <log-message>base-process Script end</log-message>
+        </script>
+      </base-process>
+
+    </pipeline>
+
+    <pipeline name="rts"
+      source-db="excel" source-name="rts-src" 
+      target-db="mock" target-name="rts-tgt"
+      max-working-count="2"
+    >
+      <description>rts</description>
+      <base-process source-rule="base" timeout="1000000"/>
+    </pipeline-->
+
+    <!--pipeline name="FcsmFiles"
+      source-db="fcsm-urls" source-name="FcsmFiles" 
+      target-db="null" target-name="FcsmFiles"
+    >
+      <description>FcsmFiles</description>
+      <base-process source-rule="main">
+
+        <schedule>
+          <time-table period="day">
+            <start hour="8"/>
+            <stop hour="22"/>
+            <launch-periodically seconds="3230"/>
+          </time-table>
+        </schedule>
+
+      </base-process>
+    </pipeline-->
+
+
+  <pipeline name="FcsmXls" source-db="fcsm-urls" source-name="FcsmXls" target-db="mock" target-name="FcsmXls">
+      <description>FcsmXls</description>
+      <base-process source-rule="main">
+
+        <schedule>
+          <time-table period="day">
+            <start hour="8"/>
+            <stop hour="23"/>
+            <launch-periodically seconds="3230"/>
+          </time-table>
+        </schedule>
+
+      <script>
+<object-stmt-call>
+<string>Scripts</string>
+<string>std</string>
+</object-stmt-call>
+</script>
+</base-process>
+    </pipeline>
+</pipelines>
+<source-main-statement>
+<block>
+<array>
+<set-var>
+<string>$error</string>
+<null-string/>
+</set-var>
+<finally>
+<catch>
+<block>
+<string>top-label</string>
+<array>
+<object-stmt-call>
+<string/>
+<string/>
+</object-stmt-call>
+<object-stmt-call>
+<string>target-profile</string>
+<string>before</string>
+</object-stmt-call>
+<if>
+<test-var>
+<string>$Break</string>
+<string>1</string>
+</test-var>
+<break>
+<string>top-label</string>
+</break>
+</if>
+<target-buffer>
+<string>##target</string>
+<string>target-profile</string>
+<string>$records-limit</string>
+<string>$bytes-limit</string>
+<string>$portion</string>
+<string>$portion-size</string>
+<object-stmt-call>
+<string/>
+<string/>
+</object-stmt-call>
+</target-buffer>
+<object-stmt-call>
+<string>target-profile</string>
+<string>after</string>
+</object-stmt-call>
+<object-stmt-call>
+<string/>
+<string/>
+</object-stmt-call>
+</array>
+</block>
+<nothing/>
+<true/>
+<not>
+<true/>
+</not>
+<string>$error</string>
+</catch>
+<object-stmt-call>
+<string/>
+<string/>
+</object-stmt-call>
+</finally>
+</array>
+</block>
+</source-main-statement>
+</pipelines-config>

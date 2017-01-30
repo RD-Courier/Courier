@@ -1,0 +1,33 @@
+<mock-database>
+  <tables>
+    <table name="MailMessages">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="from"   type="string"/>
+      <column name="to"     type="string"/>
+      <column name="cc"     type="string"/>
+      <column name="bcc"    type="string"/>
+      <column name="header" type="string"/>
+      <column name="body"   type="string"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="from"   value="from-1"/>
+          <field name="to"     value="testemail@rdxxx.ru"/>
+          <field name="cc"     value="cc-1"/>
+          <field name="bcc"    value="bcc-1"/>
+          <field name="header" value="header-1"/>
+          <field name="body"   value="body-1"/>
+        </record>
+        <record>
+          <field name="id" value="2"/>
+          <field name="from"   value="from-2"/>
+          <field name="to"     value="testemail@rdxxx.ru"/>
+          <field name="cc"     value="cc-2"/>
+          <field name="bcc"    value="bcc-2"/>
+          <field name="header" value="header-2"/>
+          <field name="body"   value="body-2"/>
+        </record>
+      </data>
+    </table>
+  </tables>
+</mock-database>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<accounts>
+  <account code="DataExpress" username="Basel" password="???"/>
+  <account code="URANUS-Test" username="Basel" password="???"/>
+  <account code="TKondor" username="Reader" password="???"/>
+  <account host="HOST1" username="user123" password="???"/>
+  <account host="127.0.0.1">
+    <account type="db" username="dbuser" password="dbpwd"/>
+    <account type="ftp" username="ftpuser" password="ftppwd"/>
+    <account type="ssh" username="sshuser" password="sshpwd"/>
+    <account code="code1" username="user1" password="123"/>
+    <account code="code2" username="user2" password="456"/>
+  </account>
+  <account host="MX-JAVA-2">
+    <account type="ftp" username="murex" password="???"/>
+    <account type="ssh" username="murex" password="???"/>
+  </account>
+</accounts>

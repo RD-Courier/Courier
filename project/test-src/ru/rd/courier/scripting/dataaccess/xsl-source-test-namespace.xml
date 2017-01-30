@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<rootF1am 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns="Pythoness.Exchange"
+>
+  <SystemInfo>
+  Hello from Stepin!!!
+    <IDString>560867</IDString>
+  </SystemInfo>
+  <ServiceInfo>
+    <Type><Code>Ф1ам</Code><Name>Заявка на многократное приобретение паев</Name></Type>
+    <DocDate><ADateTime>2006-10-13T18:33:33</ADateTime><ATimeZone>+04:00</ATimeZone></DocDate>
+    <AgentPointID><AgentName>Имя компании</AgentName><PointName>Имя места продажи</PointName></AgentPointID>
+    <Number><ClaimNumber>5/5/12821</ClaimNumber></Number>
+  </ServiceInfo>
+</rootF1am>

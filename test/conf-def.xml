@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  schedule-files-check-interval="5s"
+  host-schedule-file="schedule-host.cfg"
+  work-days-file="schedule-work-days.cfg"
+  important-pipes-file="schedule-important-pipes.cfg"
+>
+
+  <manager cancel="yes"/>
+  <db-profiles>
+    <multiple-element
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+    />
+  </db-profiles>
+  <pipelines/>
+
+</pipelines-config>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  default-config="AppConfBaseConfig/AppConfBaseConfig.xml"
+  sys-config="sys-config.xml"
+  skip-unused-pools="no"
+  check-used-databases="no"
+  use-insert-tags="no"
+>
+
+  <start-script>
+    <set-var name="start-script-var1">start-script-var1 value</set-var>
+  </start-script>
+  
+  <pipelines>
+	
+	  <script>
+      <set-var name="pipelines-script-var1">pipelines-script-var1 value</set-var>
+      <inner-script/>
+    </script>
+
+    <pipeline name="pipe"
+      source-db="mock" source-name="src" 
+      target-db="mock" target-name="tgt"
+      checkpoint-interval="600" 
+      data-logging="yes" 
+      data-logging-buffered="no"
+    >
+  	  <script>
+        <set-var name="pipeline-script-var1">pipeline-script-var1 value</set-var>
+        <inner-script/>
+      </script>
+      
+      <base-process source-rule="main" timeout="100000">
+    	  <script>
+          <set-var name="process-script-var1">process-script-var1 value</set-var>
+          <inner-script/>
+        </script>
+      </base-process>
+		</pipeline>
+
+    <pipeline name="pipe2"
+      source-db="mock" source-name="src" 
+      target-db="mock" target-name="tgt"
+    >
+      <base-process source-rule="main"/>
+		</pipeline>
+
+  </pipelines>
+
+  <source-profiles>
+
+    <profile name="src" wait-timeout="30">
+      <description>EquitiesDealsFresh-src</description>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query>S RowCount=1 ColCount=1 ColPrefix=Col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+  <target-profiles>
+
+    <profile name="tgt" wait-timeout="120">
+      <description>Deals-tgt</description>
+      <portion records="1"/>
+      <rules>
+        <rule>
+          <operation><![CDATA[U TEST]]></operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <db-profiles>
+
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./logs/JdbcMockResults.out"
+      username="" password=""
+      check-sql="S RowCount=1 ColCount=1"
+    />
+
+    <receiver
+      name="file"
+      type="file"
+
+      dir="./portion"
+      encoding="cp1251"
+      prefix="portion-"
+      postfix=".sql"
+    />
+		
+  </db-profiles>
+
+  <logging dir="logs">
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+
+      <handler type="console" level="all"/>
+    </logger>
+  </logging>
+
+</pipelines-config>

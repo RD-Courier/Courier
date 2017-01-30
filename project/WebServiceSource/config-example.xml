@@ -1,0 +1,56 @@
+<?xml version="1.0"?> 
+<pipelines-config>
+
+  <!--
+  wsdl - wsdl file
+  namespace - target namespace
+  service - service name
+  port - port name
+  operation - operation name
+  param-name - (optional) operation parameter name. If source attempt to infer param name from WSDL fails you can specify it using this parameter.
+               This source works only with method signatures:
+                 void operation(String param);
+                 String operation(String param);
+               So this attribute specifies the name of its parameter.
+
+  var-name - (optional, default=WSResponse) result set field name of service call result
+  many-params - (optional, default=no) yes/no query has many parameters separates by ",". If parameters contains comma enclose it with "'"
+                Example: param1,param2,'param with , character',param4
+  proxy tag:
+    host - proxy host
+    port - proxy port
+    user - proxy user name
+    password - proxy user password
+  -->
+  
+  <db-profiles>
+
+    <source 
+      name="..."
+      class="ru.rd.courier.datalinks.Axis2SourceFactory"
+
+      wsdl="C:\Projects\DealService\DealService.wsdl"
+      namespace="http://rd.ru/business/"
+      service="DealService"
+      port="DealServiceSoapPort"
+      operation="deal"
+      param-name="code"
+    />
+  
+    <source 
+      name="DL-Login"
+      class="ru.rd.courier.datalinks.Axis2SourceFactory"
+
+      many-params="yes"
+      wsdl="C:\Projects\IT\3D_Projects\Courier\test\DealLogic\api.wsdl"
+      namespace="http://Dealogic.com/DAAPI"
+      service="API"
+      port="APISoap12"
+      operation="Login"
+    >
+      <proxy host="10.10.100.248" port="8080" user="DLAPI" password="..."/>
+    </source>
+
+  </db-profiles>
+
+</pipelines-config>

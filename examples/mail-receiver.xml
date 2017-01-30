@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config>
+
+  <logging dir="conf-dexDeal-log"> ... </logging>
+
+  <!--
+  Operation structure:
+    <properties
+      content-type="..."
+      from="..."
+      to="..."
+      cc="..."
+      bcc="..."
+    >
+    <header>...</header>
+    <body>...</body>
+    <attachment 
+      display-name="..."
+      file="..."
+      content-type="..."
+    >...</attachment>
+  where:
+    properties - dynamic properties
+      content-type - mime-type of body
+      from, to, cc, bcc - adresses to add to static adresses (in receiver definition)
+
+    header - contains subject content
+
+    body - contains visible content ('inline' disposition attachment)
+      content-type (optional) - mime type of body.
+        If ommitted then 'text/html; charset=windows-1251' is used.
+    
+    attachment - contains file attachments ('attachment' disposition attachment)
+      file (optional) - specifies file name for file to attach. 
+        If ommitted then tag content are added to text attachment.
+      content-type (optional) - mime type of text attachment.
+        If ommitted then 'text/html; charset=windows-1251' is used.
+      display-name (optional) - visible attachment name. If ommitted then:
+        if file attribute specified then file name else 'attach.html'.
+  -->
+  
+  <db-profiles>
+    <receiver
+      name="alex-mail"
+      type="mail"
+      smtp-host="{host name}"
+      smtp-hosts="{host names separated by comma}"
+      to="{e-mail address}"
+      from="{e-mail address}"
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="100"
+      check-interval-min="100"
+    />
+  </db-profiles>
+
+  <source-profiles> ... </source-profiles>
+
+  <target-profiles>
+
+    <profile name="alex-mail" wait-timeout="120">
+      <description>alex-mail description</description>
+      <portion records="10">
+        <before><![CDATA[
+<header>Courier ({%courier-host}): Deals --> </header>
+<body><![CDATA[
+<html>
+<font size="5" color="#008000">Body before</font>
+<br><br>
+<table border="1" cellspacing="0" cellpadding="4">
+<tr>
+ <td bgcolor="#E0E0E0" align="center"><b>Uti</b></td>
+ <td bgcolor="#E0E0E0" align="center"><b>Price</b></td>
+ <td bgcolor="#E0E0E0" align="center"><b>Quantity</b></td>
+ <td bgcolor="#E0E0E0" align="center"><b>TraderId</b></td>
+ <td bgcolor="#E0E0E0" align="center"><b>Stockname</b></td>
+</tr>
+]]]]>&gt;<![CDATA[</body>
+<attachment><![CDATA[
+  <center><font size="5" color="#000080">Hello from Alex!!!!</font></center>
+]]]]>&gt;<![CDATA[</attachment>
+        ]]></before>
+        <after><![CDATA[
+<body><![CDATA[
+</table>
+<br><br>
+<font size="5" color="#008000">Body after</font>
+</html>
+]]]]>&gt;<![CDATA[</body>
+        ]]></after>
+      </portion>
+      <before>
+        <set-var name="uti" value="">U before process</set-var>
+      </before>
+      <rules>
+        <rule>
+<!--
+***********************   Short HTML guidelines *****************************
+table - shows table
+  bgcolor - background color in form #80AA40
+tr - shows row
+td - shows cell
+  bgcolor - background color in form #80AA40
+  align - cell horz align. One of left, center, right
+  valign - cell vert align. One of top, center, bottom
+font - specifies font attributes
+  color - font color
+  name - font name
+  size - font size (in strange units). Default is 3
+b - bold font
+br - feeds line
+
+***********************   Helpful header system variables *****************************
+$portion-size - portion size
+***********************   Helpful template elements ***********************************
+There is "now" template function that can take optional format. For example:
+[%!now dd.MM.yyyy]
+[%!now dd.MM.yyyy HH:mm:ss.SSS]
+-->
+          <operation><![CDATA[
+<header> [%uti] </header>
+<body><![CDATA[
+<tr>
+ <td bgcolor="#FFCC99"><font color="#000080" name="Courier">[%uti]</font></td>
+ <td><center><b>[%price]</b><center></td>
+ <td>[%quantity]</td>
+ <td align="center" bgcolor="#99CCFF">[%traderid]</td>
+ <td>[%stockname]</td>
+</tr>
+]]]]>&gt;<![CDATA[</body>
+        ]]></operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <pipelines>
+    <pipeline name="gltrade-test" 
+      source-db="gltrade" source-name="gltrade-src1" 
+      target-db="alex-mail" target-name="alex-mail"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>gltrade-test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+  </pipelines>
+</pipelines-config>

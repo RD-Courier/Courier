@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<root>
+  <tag1>
+    <tag2 attr-val="col2-1">
+      <node-val>col1-1</node-val>
+    </tag2>
+    <tag2 attr-val="col2-2">
+      <node-val>col1-2</node-val>
+    </tag2>
+  </tag1>
+</root>

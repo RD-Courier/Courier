@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  program-name="CourierTest"
+>
+
+  <db-profiles>
+
+    <sybase name="test-sybase" host="test-host" port="8888" db="test-db" username="test-user" password="test-pwd">
+      <param name="asas" value="vvvv"/>
+    </sybase>
+    
+    <sybase2/>
+    
+    <!--database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+
+    <receiver
+      name="test-file"
+      type="file"
+      encoding="windows-1251"
+      dir="."
+      overwrite="yes"
+      overwrite-warning="yes"
+      filename-at-first-line="yes"
+    /-->
+  </db-profiles>
+
+</pipelines-config>

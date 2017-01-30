@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  system-db-file="system-db2.xml"
+  program-name="Courier"
+>
+
+  <db-profiles>
+
+    <source
+      name="JmsMessages"
+      type="stream"
+    >
+      <stream type="const" encoding="cp1251">
+        <data>
+Message1</data>
+      </stream>
+      <parser type="csv"
+        encoding="utf-16"
+        skip-first-lines="1"
+        line-number-title="LineNumber"
+        separator=","
+        trim="yes"
+      >
+        <header type="list" names="Message"/>
+      </parser>
+
+    </source>
+
+    <receiver
+      name="jms"
+      type="jms"
+      
+      lost-connection-regex="(?i:Lost\s+connection)"
+      context-factory="org.exolab.jms.jndi.InitialContextFactory"
+      provider-url="tcp://localhost:3035"
+      factory-name="ConnectionFactory"
+      destination="queue1"
+      persistent="yes"
+      time-to-live="0"
+      priority="0"
+    />
+
+  </db-profiles>
+
+  <pipelines 
+    checkpoint-interval="600" 
+    data-logging="yes" data-logging-buffered="no"
+  >    
+    
+    <pipeline name="Send1"
+      source-db="JmsMessages" source-name="src" 
+      target-db="jms" target-name="tgt"
+    >
+      <description>pipe</description>
+      <base-process source-rule="base">
+        <script>
+          <set-var name="UsedVar" value="Message"/>
+          <inner-script/>
+        </script>
+        <schedule>
+          <time-table period="day">
+            <launch-periodically milliseconds="100"/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+    <!--pipeline name="Send2"
+      source-db="JmsMessages" source-name="src" 
+      target-db="jms" target-name="tgt"
+    >
+      <description>pipe</description>
+      <base-process source-rule="base">
+        <script>
+          <set-var name="UsedVar" value="Message"/>
+          <inner-script/>
+        </script>
+        <schedule>
+          <time-table period="day">
+            <launch-periodically milliseconds="150"/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="Send3"
+      source-db="JmsMessages" source-name="src" 
+      target-db="jms" target-name="tgt"
+    >
+      <description>pipe</description>
+      <base-process source-rule="base">
+        <script>
+          <set-var name="UsedVar" value="Message"/>
+          <inner-script/>
+        </script>
+        <schedule>
+          <time-table period="day">
+            <launch-periodically milliseconds="150"/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="Send4"
+      source-db="JmsMessages" source-name="src" 
+      target-db="jms" target-name="tgt"
+    >
+      <description>pipe</description>
+      <base-process source-rule="base">
+        <script>
+          <set-var name="UsedVar" value="Message"/>
+          <inner-script/>
+        </script>
+        <schedule>
+          <time-table period="day">
+            <launch-periodically milliseconds="150"/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="Send5"
+      source-db="JmsMessages" source-name="src" 
+      target-db="jms" target-name="tgt"
+    >
+      <description>pipe</description>
+      <base-process source-rule="base">
+        <script>
+          <set-var name="UsedVar" value="Message"/>
+          <inner-script/>
+        </script>
+        <schedule>
+          <time-table period="day">
+            <launch-periodically milliseconds="150"/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline-->
+
+  </pipelines>
+  
+  <source-profiles>
+
+    <profile name="src" wait-timeout="600">
+      <description></description>
+      <rules>
+        <rule name="base" type="gap">
+          <description></description>
+          <transform>
+            <data-query></data-query>
+            <after>
+              <!--stop-courier timeout="100"/-->
+            </after>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+  <target-profiles>
+
+    <profile name="tgt" wait-timeout="10">
+      <description></description>
+      <portion records="1"/>
+      <rules>
+        <rule>
+          <!--log-data>[%RtField]</log-data-->
+          <set-var name="Text">[%!var-by-name UsedVar]</set-var>
+          <log-message>[%Text]</log-message>
+          <operation>[%Text]</operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <logging dir="logs2">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="3"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+
+      <handler type="console" level="all"/>
+      <!--handler type="test" level="error"/-->
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"/>
+        <param name="from" value="CourierSystem@rdxxx.ru"/>
+        <param name="to" value="testemail@rdxxx.ru"/>
+        <param name="smtp-host" value="magician.rdxxx.ru"/>
+        <param name="publish-stack-trace" value="yes"/>
+        <param name="same-message-interval-min" value="1"/>
+      </handler-->
+
+      <logger name="sys-db" level="all">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+</pipelines-config>

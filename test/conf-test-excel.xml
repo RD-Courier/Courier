@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  program-name="CourierTest"
+>
+
+<!--
+  enable-database-pools-restrictions="no"
+  skip-unused-pools="no"
+  check-used-databases="no"
+  common-databases="common-databases.xml"
+  transformed-conf-file="conf-mock.xml.transformed.xml"
+  assembled-conf-file="conf-mock.xml.assembled.xml"
+-->
+
+  <db-profiles>
+    <source
+      name="TestData"
+      type="stream"
+    >
+      <stream type="const">
+        <data><![CDATA[ID,Name
+1,aaaa
+2,bbbb
+3,aaaa
+4,bbbb]]></data>
+      </stream>
+      <parser type="csv" separator="," encoding="UTF-16">
+        <header type="csv"/>
+      </parser>
+    </source>
+
+    <receiver
+      type="excel-file"
+      name="TestExcel"
+    />
+  </db-profiles>
+  
+  <pipelines 
+    checkpoint-interval="60" 
+    data-logging="yes" data-logging-buffered="no"
+  >
+    
+    <pipeline name="TestExcel"
+      source-db="TestData"   source-name="TestExcel" 
+      target-db="TestExcel"  target-name="TestExcel"
+    >
+      <description/>
+      
+      <base-process source-rule="main">
+        <schedule>
+          <time-table period="day">
+            <launch-once/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+  </pipelines>
+
+  <source-profiles>
+    <profile name="TestExcel" wait-timeout="200">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <description/>
+          <transform>
+            <before>
+              <set-var name="v1">[</set-var>
+              <set-var name="v2">v2-value</set-var>
+              <set-dyn-template name="dt">aaaa [%v1]%v2] bbbb</set-dyn-template>
+              <log-message>cccc [%dt] dddd</log-message>
+            </before>
+            <data-query/>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="TestExcel" wait-timeout="200">
+      <description>PricesToHoney</description>
+      <portion>
+        <before><![CDATA[<?xml version="1.0" encoding="windows-1251" ?>
+<workbook 
+  file="ExcelTest.xls"
+>
+  <worksheet>
+        ]]></before>
+        <after><![CDATA[
+  </worksheet>
+</workbook>]]></after>
+      </portion>
+      <rules>
+        <rule>
+          <operation><![CDATA[
+<row><col>
+  <format
+    wrap="no"
+    align="CENTRE"
+  >
+    <background color="LIGHT_GREEN"/>
+    <border
+      sides="ALL"
+      line-style="MEDIUM"
+      color="RED"
+    />
+  </format>
+  <data>[%ID]</data>
+</col><col>
+  <data>[%Name]</data>
+</col></row>
+          ]]></operation>
+        </rule>
+      </rules>
+    </profile>    
+  </target-profiles>
+
+  <logging dir="!_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="1"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="1"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="10"/>
+      </handler-->
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+</pipelines-config>

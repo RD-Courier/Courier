@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="{file}">
+
+  <logging dir="conf-dexDeal-log"> ... </logging>
+
+  <db-profiles> ... </db-profiles>
+
+  <source-profiles>
+    <profile name="{string}" wait-timeout="{integer-seconds}">
+      <description>source-profile-1 description</description>
+      <rules>
+        <rule name="{string}" type="fresh | all | gap" interval-column="{string}">
+          <description> {string} </description>
+          <transform>
+            <!-- ******** portion ********
+              optional
+              attributes:
+                type - (optional)
+                  interval - iterates until <data-query> returns empty result set
+                  list - <list-query> determines portion splitting
+                step - value of $Step system variable
+                max-portion-size - if portion size exceeds it the system sends warning
+            -->
+            <portion 
+              type="interval | list" step="{integer}" max-portion-size="{integer}"
+            >
+              <before> {operations} </before> <!-- optional -->
+              <after> {operations} </after> <!-- optional -->
+            </portion>
+
+            <before> <!-- optional -->
+              ******** OPERATIONS ********
+              <!-- stops current process -->
+              <stop-process/>
+              
+              <!-- deprecated - please use combination of 'execute-if' and 'stop-process' -->
+              <terminate-if db-name="{string}" value="{string}"> {query-template} </terminate-if>
+              
+              <!-- launches transfer process 
+              relaunch-if-error-interval - Relaunch process on error in this time interval. 
+                                           Examples: 30s - 30 seconds, 10m - 10 minutes, 1h - 1 hour
+              relaunch-if-error-limit    - Stop relaunching on error if this time interval has elapsed since original process start. 
+                                           Format the same as for relaunch interval.
+              import-vars                - specifies which process vars should be copied into a new one.
+                                           By default (without this attribute) all non-system vars are copied.
+              -->
+              <launch-process 
+                pipe-name="{template}" rule-name="{template}" ignore-error-count="{number}"
+                relaunch-if-error-interval="{time-interval}" relaunch-if-error-limit="{time-interval}"
+              >
+                <script> {operations} </script> 
+                <!-- 'exec-process' tag should be inserted to invoke innate pipeline script -->
+              </launch-process>
+              
+              <!-- compares variable and template -->
+              <execute-if var-name="{string}" value="{template}"> 
+                <then> {operations} </then>
+                <else> {operations} </else> <!-- optional -->
+              </execute-if>
+              
+              <!-- compares two templates -->
+              <execute-if>
+                <template1> {template} </template1>
+                <template2> {template} </template2>
+                <then> {operations} </then>
+                <else> {operations} </else> <!-- optional -->
+              </execute-if>
+
+              <!-- 
+              compares template against regular expression
+              java.util.regex regular expression syntax. Therefore see java core API docs. 
+                regex - Regular expresion
+                re-prefix - (optional) If you want to store captured groups in context variables
+                            which names begin with this prefix and ends with numbers 1, 2, ...
+              -->
+              <execute-if regex="{pattern}" re-prefix="Regex">
+                <template> {template} </template>
+                <then> {operations} </then>
+                <else> {operations} </else> <!-- optional -->
+              </execute-if>
+
+              <!-- compares template against dynamic regular expression -->
+              <!-- On every test it calculates dyn-regex template and compiles correcponding pattern. -->
+              <!-- for other description see the previous statement -->
+              <execute-if dyn-regex="{pattern template}" re-prefix="Regex">
+                <template> {template} </template>
+                <then> {operations} </then>
+                <else> {operations} </else> <!-- optional -->
+              </execute-if>
+
+              <switch template="{template}">
+                <template> {template} </template>
+                <case value="{string}"> {operations} </case>
+                ...
+                <case value="{string}"> {operations} </case>
+                <else> {operations} </else>
+              </switch>
+
+              <raise-error> {template} </raise-error>
+
+              <catch-error suppress-logging="no" rethrow="no">
+                <execute> {operations} </execute>
+                <catch> {operations} </catch> <!-- there is an $error variable available inside this block -->
+              </catch-error>
+              
+              <!--
+                prefix - (optional) if present all result set field names will start with it
+              -->
+              <var-query db-name="{template}" prefix="{template}"> {query-template} </var-query>
+
+              <var-query db-name="{template}" prefix="{template}">
+                <param name="{template}"> {template} </param>
+                ...
+                <param name="{template}"> {template} </param>
+              </var-query>
+              
+              <!--
+                var - (mandatory) where to store XML
+                record-tag - (optional default="record") name of the tag that encloses record
+              -->
+              <query-xml db-name="{template}" var="{template}" record-tag="{template}"> {query-template} </query-xml>
+              
+              <query-xml db-name="{template}" var="{template}" record-tag="{template}">
+                <param name="{template}"> {template} </param>
+                ...
+                <param name="{template}"> {template} </param>
+              </query-xml>
+              
+              <operation db-name="{template}"> {template} </operation>
+              
+              <send-mail
+                smtp-host="{host-name}"
+                from-addr="{email-address}"
+                from-name="{string}"
+                to="{email-address}"
+                subject="{string}"
+              >
+                {template}
+              </send-mail>
+              
+              <!-- template either as attribute or as text -->
+              <set-var name="{string}" value="{template}"> {template} </set-var> 
+              
+              <!-- 
+                Queries database @db-name, loops through result set
+                putting record into context, applying <template> and storing result into @var-name.
+                To accumulate data in a variable you should use the same var name for @var-name attribute
+                and somewhere in <template>.
+                
+                count-var-name  - (optional) name of variable containing record number
+                db-name         - (optional) request database name. If omitted default source database is used
+              -->
+              <set-var-from-result-set var-name="{string}" count-var-name="{string}" db-name="{template}"> 
+                <query> {template} </query>
+                <template> {template} </template>
+              </set-var-from-result-set>
+              
+              <set-template name="{string}" value="{template}"> {template} </set-template> 
+              
+              <!-- dynamic template: applies value template, parses this result and stores it under the name -->
+              <set-dyn-template name="{string}" value="{template}"> {template} </set-dyn-template> 
+              
+              <!-- severity is optional, info if omitted -->
+              <log-message severity="{info | warning | severe}"> {template} </log-message>
+
+              <log-data> {template} </log-data>
+
+              <exec-os-process 
+                working-dir="if skipped then current folder" 
+                log-output="yes" show-output="yes" no-error-stream-exception="no"
+              > {command string} </exec-os-process>
+
+              <!-- Executes remote command via SSH connection -->
+              <exec-ssh-process 
+                host="" port="" username="" password=""
+                log-output="yes" show-output="yes" no-error-stream-exception="no"
+              > {command string} </exec-ssh-process>
+
+            </before>
+            
+            <!-- only for 'list' portion type -->
+            <!--
+              prefix - (optional) if present all result set field names will start with it
+            -->
+            <list-query prefix="{template}"> {query-template} </list-query>
+            <data-query
+              prefix="{template}" 
+              xml-var="{XML var name}" xml-record-tag="{record tag name}" xml-attributes="yes"
+            > {query-template} </data-query>
+            <record-operations> {operations} </record-operations> <!-- optional -->
+            <after> {operations} </after> <!-- optional -->
+            <finally> {operations} </finally> <!-- optional -->
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles> ... </target-profiles>
+  <pipelines> ... </pipelines>
+
+</pipelines-config>

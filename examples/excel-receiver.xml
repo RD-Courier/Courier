@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<pipelines-config>
+
+  <logging> ... </logging>
+
+  <db-profiles>
+    <receiver
+      type="excel-file"
+      name="MyExcel"
+    />
+<!--
+<?xml version="1.0" encoding="windows-1251" ?>
+<workbook 
+  file=""
+  date-format=""
+  locale-lang=""
+  locale-country=""
+>
+  <worksheet>
+    <format
+      wrap="no"
+      align=""
+      valign=""
+      orientation=""
+      indentation="0"
+      locked="no"
+      shrink-to-fit="no"
+      date-display-format=""
+      number-display-format=""
+    >
+      <background
+        color=""
+        pattern-name=""
+        pattern-code=""
+      >
+      <border
+        sides=""
+        line-style=""
+        color=""
+      >
+      <font
+        name=""
+        point-size=""
+        bold-weight=""
+        italic=""
+        underline=""
+        color=""
+        script=""
+      >
+    </format>
+  
+    <row>
+      <format> ... </format>
+
+      <col width="" type="">
+        <format> ... </format>
+        <data> ... </data>
+      </col>
+    </row>
+
+  </worksheet>
+</workbook>
+
+workbook
+  file - file to save excel data
+  date-format - Data format of datetime cells. Java SimpleDateFormat. Example: yyyyMMdd HH:mm:ss.SSS
+  locale-lang - (optional, defaults to JVM default language) lowercase two-letter ISO-639 language code
+  locale-country - (optional, defaults to JVM default country) uppercase two-letter ISO-3166 country code
+  
+  worksheet
+    name - (optional, default=sheet<NUMBER>)
+    
+    format
+      wrap - (optional) yes/no
+      align - GENERAL, LEFT, CENTRE, RIGHT, FILL, JUSTIFY
+      valign - TOP, CENTRE, BOTTOM, JUSTIFY
+      orientation - HORIZONTAL, VERTICAL, PLUS_90, MINUS_90, PLUS_45, MINUS_45, STACKED
+      indentation - (optional, default=0) number
+      locked - (optional) yes/no
+      shrink-to-fit - (optional) yes/no
+      date-display-format - (optional) Display date format in form of Java SimpleDateFormat. Example: yyyyMMdd HH:mm:ss.SSS
+      number-display-format - (optional)
+
+      background
+        color - (optional)
+ UNKNOWN; BLACK; WHITE; DEFAULT_BACKGROUND1; DEFAULT_BACKGROUND; PALETTE_BLACK; RED; BRIGHT_GREEN; BLUE;
+ YELLOW; PINK; TURQUOISE; DARK_RED; GREEN; DARK_BLUE; DARK_YELLOW; VIOLET; TEAL; GREY_25_PERCENT; GREY_50_PERCENT;
+ PERIWINKLE; PLUM2; IVORY; LIGHT_TURQUOISE2; DARK_PURPLE; CORAL; OCEAN_BLUE; ICE_BLUE; DARK_BLUE2; PINK2;
+ YELLOW2; TURQOISE2; VIOLET2; DARK_RED2; TEAL2; BLUE2; SKY_BLUE; LIGHT_TURQUOISE; LIGHT_GREEN; VERY_LIGHT_YELLOW;
+ PALE_BLUE; ROSE; LAVENDER; TAN; LIGHT_BLUE; AQUA; LIME; GOLD; LIGHT_ORANGE; ORANGE; BLUE_GREY; GREY_40_PERCENT;
+ DARK_TEAL; SEA_GREEN; DARK_GREEN; OLIVE_GREEN; BROWN; PLUM; INDIGO; GREY_80_PERCENT; AUTOMATIC;
+ GRAY_80; GRAY_50; GRAY_25;
+        pattern-name - (optional) SOLID, NONE, GRAY_75, GRAY_50, GRAY_25
+        pattern-code - ???
+
+      border
+        sides - (optional) NONE, ALL, TOP, BOTTOM, LEFT, RIGHT
+        line-style - (optional) NONE, THIN, MEDIUM, DASHED, DOTTED, THICK, DOUBLE, HAIR, MEDIUM_DASHED, DASH_DOT, 
+                     MEDIUM_DASH_DOT, DASH_DOT_DOT, MEDIUM_DASH_DOT_DOT, SLANTED_DASH_DOT
+        color - (optional) see background color
+      
+      font
+        name - (optional, default=ARIAL) 
+        point-size - (optional) integer value
+        bold-weight - (optional) yes/no
+        italic - (optional) yes/no
+        underline - (optional) NO_UNDERLINE, SINGLE, DOUBLE, SINGLE_ACCOUNTING, DOUBLE_ACCOUNTING
+        color - (optional) see background color
+        script - (optional) NORMAL_SCRIPT, SUPERSCRIPT, SUBSCRIPT
+
+    row
+      format - (optional) like worksheet format. Inherits values from worksheet format.
+
+      col
+        width - (optional)
+        type - (optional, default=label) label, number, datetime, boolean, formula
+        
+        format - (optional) like worksheet format. Inherits values from row format.
+        data - cell value
+-->
+
+  </db-profiles>
+
+  <source-profiles> ... </source-profiles>
+  <target-profiles> ... </target-profiles>
+  <pipelines> ... </pipelines>
+</pipelines-config>

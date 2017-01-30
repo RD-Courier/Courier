@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<config>
+
+  <external-config file="AppConfAssemblerTestExtConf2.xml"/>
+  
+  <logging/>
+  <pipelines>
+    <pipeline name="pipe1">
+      <schedule>
+        <launch-periodically seconds="10"/>
+      </schedule>
+      <script>
+        <insert-tag doc="AppConfAssemblerTest2.xml" xpath="/*/test-script/*"/>
+      </script>
+    </pipeline>
+    <pipeline name="pipe2"/>
+  </pipelines>
+  <db-profiles>
+    <profile name="1"/>
+    <profile name="2"/>
+  </db-profiles>
+  <uuuu/>
+</config>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+
+<pipelines-config
+  program-name="Courier"
+>
+
+  <logging dir="!_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="3"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="10"/>
+      </handler-->
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+
+    <source
+      name="const"
+      type="stream"
+    >
+      <stream type="const">
+        <data><![CDATA[ID,Name
+1,aaaa
+2,bbbb]]></data>
+      </stream>
+      <parser type="csv" separator="," encoding="UTF-16">
+        <header type="csv"/>
+      </parser>
+    </source>
+
+  </db-profiles>
+  
+  <pipelines 
+    checkpoint-interval="60" 
+    data-logging="yes" data-logging-buffered="no"
+  >
+    <pipeline name="pipe"
+      source-db="const" source-name="src" 
+      target-db="$null" target-name="tgt"
+    >
+      <description></description>
+      <base-process source-rule="main" timeout="1000000">
+        <script>
+          <query-xml db-name="const" var="XML" record-tag="rec"/>
+          <log-message>XML:&#10;[%XML]</log-message>
+          <var-query db-name="const"/>
+          <log-message>ID=[%ID]</log-message>
+        </script>
+      </base-process>
+		</pipeline>
+
+  </pipelines>
+
+  <source-profiles>
+
+    <profile name="src" wait-timeout="30">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query></data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+  <target-profiles>
+
+    <profile name="tgt" wait-timeout="30">
+      <description/>
+      <portion records="1"/>
+      <rules>
+        <rule>
+          <log-message>********** [%ID] ************</log-message>
+          <operation>[%ID]</operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+</pipelines-config>

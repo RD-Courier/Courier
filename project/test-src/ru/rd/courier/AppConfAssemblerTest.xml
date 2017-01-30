@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<config>
+  <logging/>
+  <pipelines>
+    <pipeline name="test-pipe">
+      <schedule>
+        <launch-periodically seconds="10"/>
+      </schedule>
+      <script>
+        <insert-tag doc="AppConfAssemblerTest/AppConfAssemblerTest2.xml" xpath="/*/test-script/*"/>
+      </script>
+    </pipeline>
+  </pipelines>
+  <test1>
+    <tt1/>
+    <insert-tag doc="AppConfAssemblerTest/AppConfAssemblerTest2.xml" xpath="/*/test-script/*"/>
+    <tt2/>
+  </test1>
+</config>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+
+<pipelines-config
+  sys-config="../sys-config.xml"
+  database-datetime-format="yyyyMMdd HH:mm:ss.SSS"
+  pipe-log-decorator-template="&lt;[%pipe]&gt; "
+  process-log-decorator-template="&lt;[%pipe] : [%rule]&gt; "
+  program-name="Courier"
+  standard-update-proc-prefix="pcour_"
+>
+
+  <logging dir="logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      prefix="data_"
+      postfix=".log"
+      store-days="10"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="7"></param>
+      </handler>
+      <handler type="console" level="info"/>
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="same-message-interval-min" value="10"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+      </handler>
+
+      <logger name="sys-db" level="error">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="14"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="error">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="14"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+    <database
+      name="ChaseFile"
+      driver="ru.rd.courier.jdbc.GlTrade.GlTradeDriver"
+      url="jdbc:rd:gltrade"
+      username="" password=""                 
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="0"
+      check-sql="check"
+    >
+      <param name="DirName" value="C:\Projects\IT\3D_Projects\Courier\test\test-gltrade\data"/>
+      <param name="FilePrefix" value="Chase_"/>
+      <param name="StringBracket" value="&quot;"/>
+      <param name="Separator" value=","/>
+      <param name="NeedToTrim" value="true"/>
+      <param name="NullWord" value="EMPTY"/>
+      <param name="LoggerName" value="ru.rd.courier"/>
+      <param name="AddAbsentAsNull" value="yes"/>
+      <param name="SkipTemplate" value="(\*{10})|(\s*)"/>
+      <param name="HeaderRow" value="2"/>
+      <param name="TitleVarName" value="title"/>   <!-- mandatory if HeaderRow specified - name of variable that contains lines before header row -->
+    </database> 
+
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+  </db-profiles>
+
+  <source-profiles>
+
+    <profile name="Chase_Deal_Position_Source" wait-timeout="250">
+      <description>Chase_Deal_Position_Source</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>Chase_Deal_Position_Source</description>
+          <transform>
+            <data-query>data</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="Chase_Deal_Position_Target" wait-timeout="120">
+      <description>Chase_Deal_Position_Target</description>
+      <rules>
+        <rule>
+          <operation>
+[%!map 'Rcd Type' 
+'Position' '
+exec dbo.pbufChasePositionChaseInfoSave
+        @RcdType = [%(string)Rcd Type],
+        @Account = [%(string)Account],
+        @ISIN = [%(string)ISIN],
+        @Asset = [%(string)Asset],
+        @StockName = [%(string)Stock Name],
+        @Depot = [%(string)Depot],
+        @OpeningBal = [%Opening Bal],
+        @ClosingBal = [%Closing Bal]
+'
+ELSE '
+exec dbo.pbufChaseOrderChaseInfoSave
+        @RcdType = [%(string)Rcd Type],      
+        @Account = [%(string)Account],
+        @ISIN = [%(string)ISIN],
+        @Asset = [%(string)Asset],
+        @StockName = [%(string)Stock Name],
+        @Depot = [%(string)Depot],
+        @OpeningBal = [%Opening Bal],
+        @ClosingBal = [%Closing Bal],
+        @TradeRef = [%(string)Trade Ref],
+        @TradeId = [%Trade Id],
+        @StatusCode = [%Status Code],
+        @StatusDesc = [%(string)Status Desc],
+        @DeliveredQty = [%Delivered Qty],
+        @PaidReceived = [%Paid / Received Amount],
+        @TradeOpenStock = [%Trade: Open Stock],
+        @TradeOpenCash = [%Trade: Open Cash],
+        @TradeRDate = [%(string)Trade Received Date],
+        @TradeRTime = [%(string)Trade Received Time],
+        @EffectiveValueDate = [%(string)Effective Value Date],
+        @TradeDate = [%(string)Trade Date],
+        @TradeValueDate = [%(string)Trade Value Date],
+        @SettleDate = [%(string)Settle Date],
+        @TradeType = [%(string)Trade Type],
+        @Market = [%(string)Market],
+        @Broker = [%(string)Broker],
+        @BrokerDesc = [%(string)Broker Desc],
+        @SecsAgent = [%(string)Secs Agent],
+        @CashAgent = [%(string)Cash Agent],
+        @Currency = [%(string)Currency],
+        @TradeQuantity = [%Trade Quantity],
+        @TradePrice = [%Trade Price],
+        @ContractTotal = [%Contract Total],
+        @CustomerRef = [%(string)Customer Ref],
+        @InstructionRef = [%(string)Instruction Ref],
+        @CPAccount = [%(string)C/P Account]
+' ]
+          </operation>
+        </rule>
+      </rules>
+      <after>
+        <operation>exec dbo.pbufMarkOrdersLoaded</operation>
+      </after>            
+    </profile>
+
+  </target-profiles>
+
+  <pipelines>
+
+    <pipeline name="Chase_Deal_Position_Buffer"
+      source-db="ChaseFile" source-name="Chase_Deal_Position_Source"
+      target-db="mock" target-name="Chase_Deal_Position_Target"
+      checkpoint-interval="100"
+      data-logging="yes" data-logging-buffered="yes"
+      clear-vars-on-start="yes"
+    >
+      <description>Deal_Orc_Buffer</description>
+      <base-process source-rule="base" timeout="30"/>
+    </pipeline>
+
+  </pipelines>
+
+</pipelines-config>

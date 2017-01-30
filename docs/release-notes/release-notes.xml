@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<release-notes>
+  <version number="4.01" date="">
+    <features>
+      <feature doc="general-pipe.xml">New 'max-working-count' pipeline option.</feature>
+      <feature doc="general-source-profile.xml">'launch-process' copies variables count into new process.</feature>
+    </features>
+  </version>
+
+  
+  <version number="4.00" date="">
+    <features>
+      <feature doc="general-main.xml">New 'init-calls' functionality to call initialization methods.</feature>
+      <feature doc="general-source-profile.xml">db-name as template for almost all statements.</feature>
+      <feature doc="general-source-profile.xml">
+        New execute-if variant using dyn-regex attribute. 
+        On every test it calculates dyn-regex template and compiles correcponding pattern.
+      </feature>
+    </features>
+    <bug-fixes>
+      <bug-fix>'relaunch-if' schedule options 'empty', 'error' took into account only presence of attributes.</bug-fix>
+    </bug-fixes>
+  </version>
+  <version number="3.09" date="2005-12-19-13-53-39">
+    <bug-fixes>
+      <bug-fix>System variable $portion-size returned wrong value (true-value - 1) on last portion.</bug-fix>
+    </bug-fixes>
+  </version>
+  <version number="3.08" date="2005-12-06-15-27-01">
+    <bug-fixes>
+      <bug-fix>CSV data source command 'last-file' threw exception because there was no beforeFirst call for DataBuffer</bug-fix>
+      <bug-fix>Changing semantics of node cracker return value: now it can return null value for primitive types</bug-fix>
+      <bug-fix>Restore storing main source result set in context that is essential for standard update operation to get meta info</bug-fix>
+    </bug-fixes>
+  </version>
+  <version number="3.07" date="2005-11-30-15-49-45">
+    <features>
+      <feature doc="file-system-source.xml">FileSystem database 'list' command returns additional 'ModificationDate' and 'Size' fields.</feature>
+      <feature doc="gltrade-db.xml">CSV data source new command 'last-file'.</feature>
+    </features>
+    <bug-fixes>
+      <bug-fix>default script (with 'exec-process') was inserted at pipelines and pipeline levels</bug-fix>
+      <bug-fix>there was no block enclosing of script content at pipeline and base-process levels</bug-fix>
+    </bug-fixes>
+  </version>
+  <version number="3.06" date="2005-11-10-10-38-05">
+    <bug-fixes>
+      <bug-fix>tag 'exec-process' was not converted to 'call-statement' when placed outside pipeline tag</bug-fix>
+      <bug-fix>XmlStatementFactory.processNode could return null if custom tag processor had been set and it had returned null.
+        That caused for example NullPointerException if null was set to block statement.
+      </bug-fix>
+    </bug-fixes>
+  </version>
+  <version number="3.05" date="2005-11-03-14-58-37">
+    <features>
+      <feature doc="general-main.xml">'insert-tag' tag to insert content from other config places and thus eliminating duplication.</feature>
+    </features>
+  </version>
+  <version number="3.04" date="2005-11-02-14-14-41">
+    <features>
+      <feature doc="general-pipe.xml">pipelines level schedule</feature>
+      <feature doc="general-pipe.xml">pipelines level script</feature>
+      <feature doc="general-pipe.xml">pipeline level script</feature>
+      <feature doc="general-pipe.xml">base process level script</feature>
+    </features>
+  </version>
+  <version number="3.03" date="2005-11-02-10-49-22">
+    <features>
+      <feature doc="general-pipe.xml">ignore error number</feature>
+      <feature doc="general-source-profile.xml">'stop-process' operation</feature>
+      <feature doc="general-source-profile.xml">'launch-process' operation</feature>
+      <feature doc="general-pipe.xml">Pipeline options:
+<list>
+  <item>initial-interval-value</item>
+  <item>checkpoint-interval</item>
+  <item>stop-timeout</item>
+  <item>data-logging</item>
+  <item>data-logging-buffered</item>
+  <item>clear-vars-on-start</item>
+  <item>clear-vars-period</item>
+  <item>warning-as-error</item>
+</list>
+can now be specified as 'pipelines attributes' thus determining default values for all pipelines.
+      </feature>    
+    </features>
+    <bug-fixes>
+      <bug-fix>target portion specified as number of records counted operations instead</bug-fix>
+      <bug-fix>'record count' and 'interval value' were set immediately after fetching source record not after finishing all record operations</bug-fix>
+      <bug-fix>mail logger sent messages only to last recipient</bug-fix>
+    </bug-fixes>
+  </version>
+  <version number="3.02" date="2005-10-10-16-50-10">
+    <features>
+      <feature doc="template-syntax.txt">New template functions:
+        <list>
+          <item>if-value</item>
+          <item>substr</item>
+        </list>
+      </feature>
+      <feature doc="console-commands.txt">New console commands: 
+        <list>
+          <item>version</item>
+          <item>threads</item>
+          <item>pools</item>
+        </list>
+      </feature>
+    </features>
+  </version>
+  <!--version number="3.0">
+    <features>
+      <feature></feature>
+      <feature></feature>
+    </features>
+    <bug-fixes>
+      <bug-fix></bug-fix>
+      <bug-fix></bug-fix>
+    </bug-fixes>
+  </version-->
+</release-notes>

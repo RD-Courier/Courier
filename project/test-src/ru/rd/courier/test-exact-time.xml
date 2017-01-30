@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<test-config mock-db="ExactTimeMockDatabase.xml" launch-amount="1">
+  <pipes>
+
+    <pipe name="scheduled-clear-vars" launch-amount="3">
+      <other-attributes><![CDATA[mark-type="d" initial-interval-value="[%!now yyyyMMdd 00:00:00.000]"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=ScheduledClearVars ColName=date DateGreater="[%(date-format 'yyyy/MM/dd HH:mm:ss.SSS')$IntervalValue]"</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="date"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%date] [%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <portion>U 20050829 15:45:55.296 aaaa</portion>
+          </process>
+          <process></process>
+          <process>
+            <portion>U 20050829 15:45:55.296 aaaa</portion>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+  </pipes>
+</test-config>

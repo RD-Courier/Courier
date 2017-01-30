@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<source
+  use-all-data="no"
+>
+  <records-path>//RDocument</records-path>
+  <columns>
+    <column name="IDString">SystemInfo/IDString</column>
+    <column name="Document">Document</column>
+    <column name="Signature">Signature</column>
+    <column name="Type">Type</column>
+    <column name="ReplyTo">RequestInfo/ReplyTo</column>
+    <column name="TotalCount">RequestInfo/TotalCount</column>
+    <column name="Number">RequestInfo/Number</column>
+  </columns>
+</source>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="{file}">
+
+  <logging dir="conf-dexDeal-log"> ... </logging>
+
+  <db-profiles> ... </db-profiles>
+
+  <source-profiles> ... </source-profiles>
+
+  <target-profiles>
+    <profile name="{string}" wait-timeout="120">
+      <description> {string} </description>
+      <portion records="{number}" bytes="{number}">
+        <before> {template} </before>
+        <before-script> {operations} </before-script>
+        <after> {template} </after>
+        <after-script> {operations} </after-script>
+      </portion>
+      <before>
+        {operations} <!-- see definition in general-source-profile.xml -->
+      </before>
+      <rules var="{string}">
+        <!-- var optional attribute -->
+        <rule value="{string}">
+          {operations} <!-- see definition in general-source-profile.xml -->
+        </rule>
+        ...
+        <else>
+          {operations} <!-- see definition in general-source-profile.xml -->
+        </else>
+      </rules>
+      <after>
+        {operations} <!-- see definition in general-source-profile.xml -->
+      </after>
+    </profile>
+  </target-profiles>
+
+  <pipelines> ... </pipelines>
+
+</pipelines-config>

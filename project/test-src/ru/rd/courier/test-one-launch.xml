@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<test-config mock-db="MockDatabase.xml" launch-amount="1">
+  <pipes>
+
+
+    <pipe name="all-source-mode">
+      <source-transform><![CDATA[
+<data-query>S RowCount=10 ColCount=2 ColPrefix=col</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+      ]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U 1.1
+U 1.2
+U 1.3
+U 1.4
+U 1.5
+U 1.6
+U 1.7
+U 1.8
+U 1.9
+U 1.10</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+    <pipe name="single-target-portion">
+      <source-transform><![CDATA[
+<data-query>S RowCount=3 ColCount=1 ColPrefix=col</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U op1-[%col1]</operation>
+<operation>U op2-[%col1]</operation>
+<operation db-name="single-target-portion-target-db">U op3-[%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+<portion records="1"/>
+      ]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U op1-1.1
+U op2-1.1
+U op3-1.1</portion>
+<portion>U op1-1.2
+U op2-1.2
+U op3-1.2</portion>
+<portion>U op1-1.3
+U op2-1.3
+U op3-1.3</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="multiple-target-portion">
+      <source-transform><![CDATA[
+<data-query>S RowCount=5 ColCount=1 ColPrefix=col</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U op1-[%col1]</operation>
+<operation>U op2-[%col1]</operation>
+<operation db-name="multiple-target-portion-target-db">U op3-[%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+<portion records="3">
+  <before>U portion-before-[%$portion-size]
+</before>
+</portion>
+      ]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U portion-before-3
+U op1-1.1
+U op2-1.1
+U op3-1.1
+U op1-1.2
+U op2-1.2
+U op3-1.2
+U op1-1.3
+U op2-1.3
+U op3-1.3</portion>
+<portion>U portion-before-2
+U op1-1.4
+U op2-1.4
+U op3-1.4
+U op1-1.5
+U op2-1.5
+U op3-1.5</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="infinite-target-portion">
+      <source-transform><![CDATA[
+<data-query>S RowCount=3 ColCount=1 ColPrefix=col</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U op1-[%col1]</operation>
+<operation>U op2-[%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+      ]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U op1-1.1
+U op2-1.1
+U op1-1.2
+U op2-1.2
+U op1-1.3
+U op2-1.3</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="all-events">
+      <source-transform><![CDATA[
+<before><operation db-name="all-events-target-db">U source-before</operation></before>
+<data-query>S RowCount=6 ColCount=2 ColPrefix=col</data-query>
+<record-operations><operation db-name="all-events-target-db">U record-operations-[%col2]</operation></record-operations>
+<after><operation db-name="all-events-target-db">U source-after</operation></after>
+<finally><operation db-name="all-events-target-db">U finally</operation></finally>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+<portion records="2">
+  <before>target-portion-before </before>
+  <after> target-portion-after</after>
+</portion>
+<before><operation>U target-before</operation></before>
+<after><operation>U target-after</operation></after>
+      ]]></target-common-sections>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U source-before</portion>
+<portion>U target-before</portion>
+<portion>target-portion-before U record-operations-2.1
+U 1.1
+U record-operations-2.2
+U 1.2 target-portion-after</portion>
+<portion>target-portion-before U record-operations-2.3
+U 1.3
+U record-operations-2.4
+U 1.4 target-portion-after</portion>
+<portion>target-portion-before U record-operations-2.5
+U 1.5
+U record-operations-2.6
+U 1.6 target-portion-after</portion>
+<portion>U target-after</portion>
+<portion>U source-after</portion>
+<portion>U finally</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="fresh-source-mode" launch-amount="2">
+      <other-attributes><![CDATA[mark-type="i"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%id]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[<portion records="2"/>]]></target-common-sections>
+      <input-data>
+        <table>
+          <column name="id" type="integer"/>
+          <data></data>
+        </table>
+        <per-process>    
+          <launch>  
+            <process>
+              <record><field name="id" value="3"/></record>
+              <record><field name="id" value="2"/></record>
+              <record><field name="id" value="5"/></record>
+              <record><field name="id" value="4"/></record>
+              <record><field name="id" value="1"/></record>
+            </process>
+            <process>
+              <record><field name="id" value="6"/></record>
+            </process>
+          </launch>  
+        </per-process>    
+      </input-data>
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+<portion>U 3
+U 2</portion>
+<portion>U 5
+U 4</portion>
+<portion>U 1</portion>
+            </data>
+          </process>
+          <process>
+            <data>
+<portion>U 6</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="reverse-interval-values" launch-amount="2">
+      <other-attributes><![CDATA[mark-type="i"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%id]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[]]></target-common-sections>
+
+      <input-data>
+        <table>
+          <column name="id" type="integer"/>
+          <data></data>
+        </table>
+        <per-process>    
+          <launch>  
+            <process>
+              <record><field name="id" value="2"/></record>
+              <record><field name="id" value="1"/></record>
+            </process>
+            <process>
+              <record><field name="id" value="4"/></record>
+              <record><field name="id" value="3"/></record>
+            </process>
+          </launch>  
+        </per-process>    
+      </input-data>
+
+      <expected-results>
+        <launch>
+          <process error-count="0" interval-value="2">
+            <data>
+              <portion>U 2
+U 1</portion>
+            </data>
+          </process>
+          <process error-count="0" interval-value="4">
+            <data>
+              <portion>U 4
+U 3</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="clear-vars-date-format" launch-amount="3">
+      <other-attributes><![CDATA[mark-type="i" clear-vars-period="2s"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[]]></target-common-sections>
+
+      <input-data>
+        <table>
+          <column name="id" auto-increment="yes" type="integer"/>
+          <data>
+            <record><field name="id" value="1"/></record>
+          </data>
+        </table>
+      </input-data>
+
+      <expected-results></expected-results>
+    </pipe>
+
+    
+    <pipe name="scheduled-clear-vars" launch-amount="3">
+      <other-attributes><![CDATA[mark-type="d" initial-interval-value="[%!now yyyyMMdd 00:00:00.000]"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=ScheduledClearVars ColName=date DateGreater="[%(date-format 'yyyy/MM/dd HH:mm:ss.SSS')$IntervalValue]"</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="date"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%date] [%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[]]></target-common-sections>
+    </pipe>
+    
+
+    <pipe name="fresh-source-mode-with-error">
+      <other-attributes><![CDATA[mark-type="i"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>[%!map id '4' 'E' ELSE 'U'] [%id]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[<portion records="2"/>]]></target-common-sections>
+
+      <input-data>
+        <table initial-records-count="5">
+          <column name="id" type="integer"/>
+          <data>
+            <record><field name="id" value="2"/></record>
+            <record><field name="id" value="3"/></record>
+            <record><field name="id" value="5"/></record>
+            <record><field name="id" value="4"/></record>
+            <record><field name="id" value="6"/></record>
+          </data>
+        </table>
+      </input-data>
+
+      <expected-results>
+        <launch>
+          <process error-count="1" interval-value="3">
+            <data>
+<portion>U 2
+U 3</portion>
+<portion>U 5
+E 4</portion>            
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="ignore-error-number-all" ignore-error-number="1">
+      <other-attributes><![CDATA[mark-type="i"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="all" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>E [%id]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[<portion records="2"/>]]></target-common-sections>
+
+      <input-data>
+        <table initial-records-count="4">
+          <column name="id" type="integer"/>
+          <data>
+            <record><field name="id" value="3"/></record>
+            <record><field name="id" value="2"/></record>
+            <record><field name="id" value="5"/></record>
+            <record><field name="id" value="4"/></record>
+          </data>
+        </table>
+      </input-data>
+
+      <expected-results>
+        <launch>
+          <process error-count="2" interval-value="5">
+            <data/>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+
+    <pipe name="ignore-error-number-fresh" ignore-error-number="2" launch-amount="3">
+      <other-attributes><![CDATA[mark-type="i"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>[%!map id '4' 'E' ELSE 'U'] [%id]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[<portion records="2"/>]]></target-common-sections>
+      <input-data>
+        <table>
+          <column name="id" type="integer"/>
+          <data></data>
+        </table>
+        <per-process>    
+          <launch>  
+            <process>
+              <record><field name="id" value="3"/></record>
+              <record><field name="id" value="2"/></record>
+              <record><field name="id" value="5"/></record>
+              <record><field name="id" value="4"/></record>
+            </process>
+            <process>
+            </process>
+            <process>
+              <record><field name="id" value="6"/></record>
+              <record><field name="id" value="7"/></record>
+            </process>
+          </launch>  
+        </per-process>    
+      </input-data>
+      <expected-results>
+        <launch>
+          <process error-count="1" interval-value="3">
+            <data>
+              <portion>U 3
+U 2</portion>
+              <portion>U 5
+E 4</portion>
+            </data>
+          </process>
+          <process error-count="1" interval-value="5">
+            <data>
+              <portion>U 5
+E 4</portion>
+            </data>
+          </process>
+          <process error-count="0" interval-value="7">
+            <data>
+              <portion>U 6
+U 7</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+    
+<!-- clear-vars-on-start="yes" -->
+
+<!--
+    <pipe name="">
+      <other-attributes><![CDATA[]]></other-attributes>
+      <source-transform><![CDATA[
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+      ]]></target-common-sections>
+      <expected-results>
+      </expected-results>
+    </pipe>
+-->
+  </pipes>
+</test-config>

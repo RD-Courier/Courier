@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  database-datetime-format="yyyyMMdd HH:mm:ss.SSS"
+  pipe-log-decorator-template="&lt;[%pipe]&gt; "
+  process-log-decorator-template="&lt;[%pipe] : [%rule]&gt; "
+  program-name="Courier"
+  standard-update-proc-prefix="pcour_"
+>
+
+  <logging dir="conf-dexDeal-log">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="info">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+      </handler>
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+    <database
+      name="chance"
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+      url="jdbc:microsoft:sqlserver://ITRACKER;DatabaseName=Chance"
+      username="Risky" password="riskyman"
+      initial-capacity="0"
+      check-sql="SELECT 1"
+    />
+    <receiver
+      name="condor-ftp"
+      type="ftp"
+      host="kplus"
+      username="condor"
+      password="condor"
+      encoding="windows-1251"
+      dir="/condor/test"
+      overwrite="yes"
+      overwrite-warning="yes"
+      filename-at-first-line="yes"
+    />
+  </db-profiles>
+
+  <source-profiles>
+    <profile name="gltrade-src" wait-timeout="120">
+      <description>gltrade-src1</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all</description>
+          <transform>
+            <data-query>general</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-src" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <data-query>S RowCount=10 ColCount=2 ColPrefix=col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-src-list" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <portion type="list" max-portion-size="500"/>
+            <list-query>S 4 1 col</list-query>
+            <data-query>S 100 2 col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="chance-src" wait-timeout="120">
+      <description>chance-src</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>chance-src base</description>
+          <transform>
+            <data-query>
+exec pchaGuiGetLimitsByCptyOrFolder
+  @CptySearchColumns = '12'
+, @CptyLikeValue = 'a%'
+, @CptyType = 'A'
+, @Zone = 'V'
+            </data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="ftp-tgt" wait-timeout="120">
+      <description>chance-tgt</description>
+      <portion records="10">
+        <before>file-name=testfile-[%$pipeline]-[%(date-format 'yyyyMMdd-HH')!now].txt
+</before>
+      </portion>
+      <rules>
+        <rule>
+          <operation>[%col1]		[%col2]		[%(date-format 'yyyyMMdd-HHmmssSSS')!now]</operation>
+        </rule>
+      </rules>
+    </profile>
+  </target-profiles>
+
+  <pipelines>
+    <pipeline name="ftp-test" 
+      source-db="mock" source-name="mock-src" 
+      target-db="condor-ftp" target-name="ftp-tgt"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>ftp-test</description>
+      <base-process source-rule="base" timeout="15"/>
+    </pipeline>
+  </pipelines>
+</pipelines-config>

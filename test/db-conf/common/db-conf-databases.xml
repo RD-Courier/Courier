@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<databases>
+
+<!--
+      username="Basel" password="see2risk"
+-->    
+  <database
+    name="DataExpress"
+    driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+    url="jdbc:microsoft:sqlserver://GEFEST;DatabaseName=DataExpress"
+
+    initial-capacity="0"
+    increment-capacity="1"
+    max-capacity="30"
+
+    shrink-interval-min="2"
+    shrink-capacity="-1"
+    shrink-obsolete-interval-min="7"
+
+    check-interval-min="1"
+    check-sql="select getDate()"
+    check-wait-timeout="30" 
+
+    expire-interval-min="60"
+    expire-count="-1"
+    expire-period-min="500"
+    allocate-timeout="60s"                
+  />
+  
+</databases>

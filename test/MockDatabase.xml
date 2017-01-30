@@ -1,0 +1,138 @@
+<mock-database>
+  <tables>
+    <table name="TestFresh" new-record-interval="2000" initial-records-count="5">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="col1" type="string" size="20"/>
+      <column name="col2" type="string"/>
+      <column name="col3" type="string"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="col1" value="&lt;aaaa&gt;"/>
+          <field name="col2" value="aaaa+aaaa"/>
+          <field name="col3" value="1200"/>
+        </record>
+        <record>
+          <field name="id" value="2"/>
+          <field name="col1" value=""/>
+          <field name="col2" value="bbbb+bbbb"/>
+          <field name="col3" value="1204"/>
+        </record>
+        <record>
+          <field name="id" value="3"/>
+          <field name="col1" value="cccc"/>
+          <field name="col2" value="cccc+cccc"/>
+          <field name="col3" value="-1100"/>
+        </record>
+        <record>
+          <field name="id" value="4"/>
+          <field name="col1" value="dddd"/>
+          <field name="col2" value="dddd+dddd"/>
+          <field name="col3" value="120"/>
+        </record>
+        <record>
+          <field name="id" value="5"/>
+          <field name="col1" value="eeee"/>
+          <field name="col2" value="eeee+eeee"/>
+          <field name="col3" value="10"/>
+        </record>
+        <record>
+          <field name="id" value="6"/>
+          <field name="col1" value="ffff"/>
+          <field name="col2" value="ffff+ffff"/>
+          <field name="col3" value="500"/>
+        </record>
+        <record>
+          <field name="id" value="7"/>
+          <field name="col1" value="gggg"/>
+          <field name="col2" value="gggg+gggg"/>
+          <field name="col3" value="-300"/>
+        </record>
+        <record>
+          <field name="id" value="8"/>
+          <field name="col1" value="col1-8"/>
+          <field name="col2" value="col2-8"/>
+          <field name="col3" value="-1200"/>
+        </record>
+        <record>
+          <field name="id" value="9"/>
+          <field name="col1" value="col1-9"/>
+          <field name="col2" value="col2-9"/>
+          <field name="col3" value="10200"/>
+        </record>
+        <record>
+          <field name="id" value="10"/>
+          <field name="col1" value="col1-10"/>
+          <field name="col2" value="col2-10"/>
+          <field name="col3" value="12000"/>
+        </record>
+        <record>
+          <field name="id" value="11"/>
+          <field name="col1" value="col1-11"/>
+          <field name="col2" value="col2-11"/>
+          <field name="col3" value="4500"/>
+        </record>
+        <record>
+          <field name="id" value="12"/>
+          <field name="col1" value="col1-12"/>
+          <field name="col2" value="col2-12"/>
+          <field name="col3" value="-35200"/>
+        </record>
+        <record>
+          <field name="id" value="13"/>
+          <field name="col1" value="col1-13"/>
+          <field name="col2" value="col2-13"/>
+          <field name="col3" value="1200"/>
+        </record>
+        <record>
+          <field name="id" value="14"/>
+          <field name="col1" value="col1-14"/>
+          <field name="col2" value="col2-14"/>
+          <field name="col3" value="-1200"/>
+        </record>
+        <record>
+          <field name="id" value="15"/>
+          <field name="col1" value="col1-15"/>
+          <field name="col2" value="col2-15"/>
+          <field name="col3" value="120"/>
+        </record>
+        <record>
+          <field name="id" value="16"/>
+          <field name="col1" value="col1-16"/>
+          <field name="col2" value="col2-16"/>
+          <field name="col3" value="71200"/>
+        </record>
+      </data>
+    </table>
+
+    <table name="TestBreak">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="$Break" type="string" size="1"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="$Break" value="1"/>
+        </record>
+      </data>
+    </table>
+
+    <table name="TestNumberFormat">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="col1" type="integer"/>
+      <column name="col2" type="float"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="col1" value="1234"/>
+          <field name="col2" value="123456789.1234"/>
+        </record>
+        <record>
+          <field name="id" value="2"/>
+          <field name="col1" value="1234"/>
+          <field name="col2" value="4444.8888"/>
+        </record>
+      </data>
+    </table>
+
+  </tables>
+</mock-database>

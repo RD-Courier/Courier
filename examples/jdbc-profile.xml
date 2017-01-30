@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging dir="conf-dexDeal-log">
+  ...
+  </logging>
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.mock.jdbc.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="1"
+      increment-capacity="1"
+      shrink-interval-min="5"
+      shrink-capacity="1"
+      shrink-obsolete-interval-min="5"
+      check-interval-min="2"
+      check-sql="S 1 1"
+    />
+  </db-profiles>
+
+  <source-profiles>
+  ...
+  </source-profiles>
+
+  <target-profiles>
+  ...
+  </target-profiles>
+
+  <pipelines>
+  ...
+  </pipelines>
+</pipelines-config>

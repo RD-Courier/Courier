@@ -1,0 +1,1 @@
+@%windir%\system32\cscript /NOLOGO %~dp0courier.js %1 %2 %3 %4

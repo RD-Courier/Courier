@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<config>
+  <aaaa/>
+  <pipelines inherit-attr="inherit-attr-value">
+    <pipeline name="epipe1">
+      <schedule>
+        <launch-periodically seconds="10"/>
+      </schedule>
+      <script>
+        <insert-tag doc="AppConfAssemblerTest2.xml" xpath="/*/test-script/*"/>
+      </script>
+    </pipeline>
+    <pipeline name="epipe2"/>
+  </pipelines>
+  <db-profiles>
+    <profile name="e1">
+    </profile>
+    <profile name="e2"/>
+  </db-profiles>
+  <bbbb/>
+</config>

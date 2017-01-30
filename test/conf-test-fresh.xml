@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="sys-config.xml">
+
+  <logging dir="conf-dexDeal-log">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+      <handler type="mail" level="error">
+        <param name="subject-prefix" value="Courier System: "></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="same-message-interval-min" value="1"></param>
+      </handler>
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="150"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+    <database
+      name="mock2"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults2.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="150"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+    <database
+      name="mock_s"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults_s.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="150"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+    <database
+      name="mock_r"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults_r.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="150"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+  </db-profiles>
+
+  <source-profiles>
+    <profile name="test-source" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="fresh" interval-column="id">
+          <description>test-all description</description>
+          <transform>
+            <before>
+              <operation>U Message from source before</operation>
+            </before>
+            <record-operations>
+              <operation>U (Sleep=100)Message from source record: [%col1]</operation>
+            </record-operations>
+            <after>
+              <operation>U Message from source after</operation>
+            </after>
+            <finally>
+              <operation>U Message from source finally: IntervalValue = [%$IntervalValue]</operation>
+            </finally>
+            <data-query>S TableName="TestFresh" ColName="id" Greater="[%$IntervalValue]"</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="test-target" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="20">
+        <before>**** before target portion</before>
+      </portion>
+      <before>
+        <var-query>S RowCount=1 ColCount=1 ColPrefix="TargetBeforeCol"</var-query>
+        <operation>U Message from target before</operation>
+      </before>
+      <rules><rule>
+        <set-var name="test-var" value="**[%col1]**"/>
+        <operation>U (Sleep=1)[%id]:[%col1]:[%col2]:[%test-var]</operation>
+      </rule></rules>
+      <after>
+        <var-query>S RowCount=1 ColCount=1 ColPrefix="TargetAfterCol"</var-query>
+        <operation>U Message from target after</operation>
+      </after>
+    </profile>
+
+  </target-profiles>
+
+  <pipelines>
+    <pipeline name="test-pipeline1" 
+      source-db="mock" source-name="test-source" 
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600" mark-type="i"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="10"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline2"
+      source-db="mock2" source-name="test-source"
+      target-db="mock2" target-name="test-target"
+      checkpoint-interval="600" mark-type="i"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+<!--
+    <pipeline name="test-pipeline3"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline4"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline5"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline6"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline7"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline8"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline9"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline10"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline11"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="8"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline12"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="7"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline13"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="8"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline14"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="7"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline15"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="8"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline16"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="6"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline17"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="9"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline18"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="6"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline19"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="9"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline20"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="6"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline21"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="7"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline22"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="3"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline23"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="9"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline24"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="6"/>
+    </pipeline>
+
+    <pipeline name="test-pipeline25"
+      source-db="mock" source-name="test-source"
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="5"/>
+    </pipeline>
+-->
+
+  </pipelines>
+</pipelines-config>

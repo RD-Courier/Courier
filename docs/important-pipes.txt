@@ -1,0 +1,12 @@
+<Schedule> := <ProcPipes>*
+<ProcPipes> := <CourierConfig>  '(' <PipeName>, ... ')'
+
+Example:
+C:\Couriers\Courier1\Config.xml (
+  pipe-aaa, pipe1, pipe2, pipe3, 'aaa, bb''bb'
+)
+
+'C:\Couriers Old\Deals\Config.xml' (
+  OptionDeals, FutureDeals, OTCDeals
+)
+

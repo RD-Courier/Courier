@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test/sys-config.xml">
+
+  <logging dir="conf-dexDeal-log">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+      <handler type="mail" level="error">
+        <param name="subject-prefix" value="Courier System: "></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="same-message-interval-min" value="1"></param>
+      </handler>
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.mock.jdbc.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="150"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+  </db-profiles>
+
+  <source-profiles>
+    <profile name="test-source" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <before>
+              <var-query>S TableName="TestBreak"</var-query>
+            </before>
+            <data-query>S TableName="TestFresh"</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="test-target" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="20"/>
+      <rules><rule>
+        <operation>U (Sleep=1)id=[%id]</operation>
+      </rule></rules>
+    </profile>
+
+  </target-profiles>
+
+  <pipelines>
+    <pipeline name="test-break" 
+      source-db="mock" source-name="test-source" 
+      target-db="mock" target-name="test-target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="10"/>
+    </pipeline>
+
+  </pipelines>
+</pipelines-config>

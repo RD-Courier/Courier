@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  program-name="db-conf-test"
+  system-db-file="_system-db.xml"
+  default-config="common/db-conf-def.xml"
+  accounts-file="db-conf-accounts.xxx"
+>
+  <db-profiles enable-pool2="no">
+    <!--database
+      name="VSOP"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:VSOP:5000/dealingnew?CHARSET=cp1251"
+      initial-capacity="0"
+      check-sql="SELECT 1"
+    /-->
+
+    <source
+      name="TestValues"
+      type="stream"
+      max-capacity="10"
+      wait-timeout="5000"
+    >
+      <stream type="const">
+        <data><![CDATA[TestValue1,TestValue2
+1.1,aaaa
+1.2,bbbb
+0.12345678,cccc
+2435,dddd
+6574,eeee
+4444,ffff
+]]></data>
+      </stream>
+      <parser type="csv" separator="," encoding="UTF-16">
+        <header type="csv"/>
+      </parser>
+    </source>
+
+    <mssql
+      name="dex"
+      
+      host="GEFEST" 
+      db="DataExpress"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="30"
+
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+
+      check-interval-min="1"
+      check-sql="select getDate()"
+      check-wait-timeout="30" 
+
+      expire-interval-min="60"
+      expire-count="-1"
+      expire-period-min="500"
+      allocate-timeout="60s"                
+    />
+
+    <source
+      name="MurexFtp"
+      type="stream"
+    >
+      <stream type="ftp" host="MX-JAVA-2" file="rd/DeploySite.py"/>
+      <parser type="null" field-name="FtpField"/>
+    </source>
+
+
+</db-profiles>
+  
+  <pipelines
+    data-logging="yes"
+    checkpoint-interval="200" stop-timeout="1"
+  >
+  
+    <pipeline name="pipe"
+      source-db="DataExpress"   source-name="src" 
+      target-db="dex"           target-name="tgt"
+    >
+      <description/>
+      <base-process source-rule="main">
+        <schedule>
+          <time-table period="day">
+            <start hour="9" minute="01"/>
+            <stop hour="22" minute="29"/>
+            <launch-once/>
+          </time-table>
+        </schedule>
+      </base-process>
+      
+      <script>
+        <catch-error>
+          <execute>
+            <inner-script/>
+            <execute-if>
+              <template1>[%!if-value FtpField '1' else '0']</template1>
+              <template2>1</template2>
+              <then>
+                <log-message>TEST OK !!!!</log-message>
+              </then>
+              <else>
+                <raise-error>FtpField undefined</raise-error>
+              </else>
+            </execute-if>
+          </execute>
+          <catch>
+            <log-message>TEST FAILED !!!!</log-message>
+          </catch>
+        </catch-error>
+        <stop-courier/>
+      </script>
+    </pipeline>    
+ 
+  </pipelines>
+
+  <source-profiles>
+
+    <profile name="src" wait-timeout="30">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query><![CDATA[
+select TestValue1 = '1.1', TestValue2 = 'Stepochkin Alexander<testemail@rdxxx.ru>'
+union 
+select TestValue1 = '1.2', TestValue2 = 'bbbb'
+            ]]></data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="src2" wait-timeout="30">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query>S RowCount=1 ColCount=1</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="tgt" wait-timeout="30">
+      <description/>
+      <before>
+        <var-query db-name="MurexFtp"/>
+        <log-data>[%FtpField]</log-data>
+      </before>
+      <rules>
+        <rule>
+          <log-data>
+Address   = [%TestValue2]
+          </log-data>
+          <operation>-- For Record Count</operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <logging dir="_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="1"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="info">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="1"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <!--logger name="schedule" level="all"/-->
+
+      <!--logger name="manager" level="debug">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="manager"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger-->
+    </logger>
+  </logging>
+
+</pipelines-config>

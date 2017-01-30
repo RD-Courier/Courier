@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<config
+  main-port="4444"
+  stat-port="8888"
+  max-stat-threads="3"
+  stat-portion-size="100"
+  max-stat-buffer-size="1000"
+  processor-count="5"
+  timeout="4000"
+  check-interval="5000"
+  debug-mode="yes"
+  couriers-store-state-interval="5m"
+>
+
+<!--
+  max-stat-buffer-size - process result statistics is processed asynchroniously so has a buffer of process results.
+                         If statistics is stored slowly and buffer size is exceeded it is discarded.
+-->
+
+  <console
+    title="CourierEye"
+    stat-max-rows="100"
+    stat-frame-alive-period="10s"
+  />
+
+  <db-types>
+    <type name="file" class="FileReceiverFactory"/>
+    <type name="ftp" class="FtpSourceFactory"/>
+    <type name="sftp" class="SFtpSourceFactory"/>
+    <type name="mail" class="MailReceiverFactory"/>
+    <type name="xml" class="XmlSourceFactory"/>
+    <type name="xsl" class="XslFactory"/>
+    <type name="url" class="UrlSourceFactory"/>
+    <type name="null" class="NullSourceFactory"/>
+    <type name="stream" class="StreamSourceFactory"/>
+    <type name="jms" class="JmsReceiverFactory"/>
+    <type name="file-system" class="FileSystemSourceFactory"/>
+    <type name="excel-file" class="ExcelReceiverFactory"/>
+  </db-types>
+  
+  <jdbc-drivers>
+    <driver class="com.microsoft.jdbc.sqlserver.SQLServerDriver">
+      <param name="host-param-name" value="WSID"/>
+      <param name="program-param-name" value="programName"/>
+    </driver>
+    <driver class="com.sybase.jdbc2.jdbc.SybDriver">
+      <param name="host-param-name" value="HOSTNAME"/>
+      <param name="program-param-name" value="APPLICATIONNAME"/>
+    </driver>
+    <driver class="ru.rd.courier.jdbc.mock.MockDriver">
+      <param name="host-param-name" value="WSID"/>
+      <param name="program-param-name" value="programName"/>
+    </driver>
+  </jdbc-drivers>
+
+  <thread-pool
+    shrink-interval-min="1"
+    shrink-obsolete-interval-min="1"
+  />
+
+  <databases>
+    <!--receiver
+      name="statistics"
+      type="null"
+    /-->
+
+    <receiver
+      name="statistics"
+      type="file"
+
+      encoding="windows-1251"
+      overwrite="yes"
+      overwrite-warning="no"
+      dir="."
+      prefix="stat.data"
+      postfix=""
+      date-format=""
+      append="yes"
+      sync-mkdir="no"
+    />
+  </databases>
+
+  <state-request>
+exec CourierStateProc
+  @Host = [%(string)Host]
+, @Config = [%(string)Config]
+, @State = [%(string)State]
+  </state-request>
+
+  <stat-request>
+exec SaveStatProc
+  @ProcessId = [%ID]
+, @Host = [%(string)Host]
+, @Config = [%(string)Config]
+, @Pipe = [%(string)Pipe]
+, @SourceDb = [%(string)SourceDb]
+, @SourceDbType = [%(string)SourceDbType]
+, @SourceDbUrl = [%(string)SourceDbUrl]
+, @TargetDb = [%(string)TargetDb]
+, @TargetDbType = [%(string)TargetDbType]
+, @TargetDbUrl = [%(string)TargetDbUrl]
+, @RecordCount = [%RecordCount]
+, @ErrorCount = [%ErrorCount]
+, @Error = [%(string)Error]
+, @StartTime = [%StartTime]
+, @TotalTime = [%TotalTime]
+, @SourceTime = [%SourceTime]
+, @TargetTime = [%TargetTime]
+  </stat-request>
+
+  <stat-portion>
+/* Portion begin */
+[%Portion]
+/* Portion end */
+  </stat-portion>
+  
+  <logging dir="_logs">
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.courier.manager" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+<!--
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@example.ru"></param>
+        <param name="to" value="Alexander_Stepochkin@example.ru"></param>
+        <param name="smtp-host" value="magician.example.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+      </handler>
+-->
+
+      <logger name="data" level="all" cancel-parent="yes">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="data"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="thread" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="thread"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+</config>

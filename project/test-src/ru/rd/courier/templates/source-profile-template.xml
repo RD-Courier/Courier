@@ -1,0 +1,6 @@
+    <profile name="[%name]" wait-timeout="120">
+      <description>[%name]</description>
+      <rules>
+[%rule]
+      </rules>
+    </profile>

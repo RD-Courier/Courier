@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  database-datetime-format="yyyyMMdd HH:mm:ss.SSS"
+  pipe-log-decorator-template="&lt;[[%pipe]&gt; "
+  process-log-decorator-template="&lt;[[%pipe] : [[%rule]&gt; "
+  program-name="Courier"
+  standard-update-proc-prefix="pcour_"
+  enable-database-pools-restrictions="no"
+  non-forced-exit="yes"
+>
+
+  <logging dir="[%log-dir]">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="[%attach-logger]" level="all">
+      <handler type="console" level="all"/>    
+      <logger name="sys-db" level="all"/>
+      <logger name="pool" level="all"/>
+    </logger>
+  </logging>
+
+  <db-profiles>
+[%mock-db]
+[%db-profiles]
+  </db-profiles>
+
+  <source-profiles>
+[%source-profiles]
+  </source-profiles>
+
+  <target-profiles>
+[%target-profiles]
+  </target-profiles>
+
+  <pipelines fresh-ignore-error-count="2">
+[%pipelines]
+  </pipelines>
+</pipelines-config>

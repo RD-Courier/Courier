@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<scripts>
+  <test-script>
+    <aaaa file2-attr1="file2-attr1-value"/>
+    <insert-tag doc="AppConfAssemblerTest3.xml" xpath="//ii"/>
+    <bbbb file2-attr2="file2-attr2-value"/>
+  </test-script>
+</scripts>

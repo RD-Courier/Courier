@@ -1,0 +1,10 @@
+    <pipeline name="[%name]" 
+      source-db="mock" source-name="[%source]" 
+      target-db="[%target-db]" target-name="[%target]"
+      checkpoint-interval="[%checkpoint-interval]"
+      data-logging="yes" data-logging-buffered="no"
+      [%other-attributes]
+    >
+      <description>[%name]</description>
+      [%custom-tags]
+    </pipeline>

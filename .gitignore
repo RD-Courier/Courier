@@ -1,0 +1,8 @@
+# Build results
+distr-test/
+distr/
+*/distr/
+*.class
+project/test-classes/
+project/.idea/
+project/out/

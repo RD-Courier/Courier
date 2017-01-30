@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  common-databases="db-conf-databases.xml"
+  common-accounts-file="db-conf-accounts-common.xxx"
+>
+
+  <manager cancel="yes"/>
+  <db-profiles>
+    <multiple-element
+      shrink-interval-min="2"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="7"
+    />
+  </db-profiles>
+  <pipelines/>
+
+</pipelines-config>

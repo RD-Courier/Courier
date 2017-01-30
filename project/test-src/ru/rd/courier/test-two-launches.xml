@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<test-config mock-db="MockDatabase.xml" launch-count="2">
+  <pipes>
+
+    <pipe name="fresh-source-mode" launch-amount="2">
+      <other-attributes><![CDATA[mark-type="i"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%id] [%col1] [%col2]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+<before>
+  <operation>U IntervalValue=[%$IntervalValue]</operation>
+</before>
+      ]]></target-common-sections>
+
+      <input-data>
+        <table>
+          <column name="id" auto-increment="yes" type="integer"/>
+          <column name="col1" type="string" size="20"/>
+          <column name="col2" type="string"/>
+          <data></data>
+        </table>
+        <per-process>    
+          <launch>
+            <process>
+              <record>
+                <field name="id" value="1"/>
+                <field name="col1" value="col1-1"/>
+                <field name="col2" value="col2-1"/>
+              </record>
+            </process>
+            <process>
+              <record>
+                <field name="id" value="2"/>
+                <field name="col1" value="col1-2"/>
+                <field name="col2" value="col2-2"/>
+              </record>
+              <record>
+                <field name="id" value="3"/>
+                <field name="col1" value="col1-3"/>
+                <field name="col2" value="col2-3"/>
+              </record>
+            </process>
+          </launch>
+          <launch>
+            <process>
+              <record>
+                <field name="id" value="6"/>
+                <field name="col1" value="col1-6"/>
+                <field name="col2" value="col2-6"/>
+              </record>
+              <record>
+                <field name="id" value="4"/>
+                <field name="col1" value="col1-4"/>
+                <field name="col2" value="col2-4"/>
+              </record>
+              <record>
+                <field name="id" value="5"/>
+                <field name="col1" value="col1-5"/>
+                <field name="col2" value="col2-5"/>
+              </record>
+            </process>
+            <process>
+              <record>
+                <field name="id" value="7"/>
+                <field name="col1" value="col1-7"/>
+                <field name="col2" value="col2-7"/>
+              </record>
+              <record>
+                <field name="id" value="8"/>
+                <field name="col1" value="col1-8"/>
+                <field name="col2" value="col2-8"/>
+              </record>            
+            </process>
+          </launch>
+        </per-process>    
+      </input-data>
+
+      <expected-results>
+        <launch>
+          <process interval-value="1">
+            <data>
+              <portion>U IntervalValue=0</portion>
+              <portion>U 1 col1-1 col2-1</portion>
+            </data>
+          </process>
+          <process interval-value="3">
+            <data>
+              <portion>U IntervalValue=1</portion>
+              <portion>U 2 col1-2 col2-2
+U 3 col1-3 col2-3</portion>
+            </data>
+          </process>
+        </launch>
+        <launch>
+          <process interval-value="6">
+            <data>
+              <portion>U IntervalValue=3</portion>
+              <portion>U 6 col1-6 col2-6
+U 4 col1-4 col2-4
+U 5 col1-5 col2-5</portion>
+            </data>
+          </process>
+          <process interval-value="8">
+            <data>
+              <portion>U IntervalValue=6</portion>
+              <portion>U 7 col1-7 col2-7
+U 8 col1-8 col2-8</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+    <pipe name="clear-vars-on-start" launch-amount="1">
+      <other-attributes><![CDATA[mark-type="i" clear-vars-on-start="yes"]]></other-attributes>
+      <source-transform><![CDATA[
+<data-query>S TableName=[%$pipeline] ColName=id Greater=[%$IntervalValue]</data-query>
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[type="fresh" interval-column="id"]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+<operation>U [%id] [%col1]</operation>
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+<before>
+  <operation>U IntervalValue=[%$IntervalValue]</operation>
+</before>
+<portion records="1"/>
+
+      ]]></target-common-sections>
+
+      <input-data>
+        <table>
+          <column name="id" type="integer"/>
+          <column name="col1" type="string" size="20"/>
+          <data></data>
+        </table>
+        <per-process>    
+          <launch>
+            <process>
+              <record>
+                <field name="id" value="1"/>
+                <field name="col1" value="col1-1"/>
+              </record>
+            </process>
+          </launch>
+          <launch>
+            <process>
+              <record>
+                <field name="id" value="1"/>
+                <field name="col1" value="col1-1"/>
+              </record>
+              <record>
+                <field name="id" value="2"/>
+                <field name="col1" value="col1-2"/>
+              </record>
+            </process>
+          </launch>
+        </per-process>    
+      </input-data>
+
+      <expected-results>
+        <launch>
+          <process>
+            <data>
+              <portion>U IntervalValue=0</portion>
+              <portion>U 1 col1-1</portion>
+            </data>
+          </process>
+        </launch>
+        <launch>
+          <process>
+            <data>
+              <portion>U IntervalValue=0</portion>
+              <portion>U 1 col1-1</portion>
+              <portion>U 2 col1-2</portion>
+            </data>
+          </process>
+        </launch>
+      </expected-results>
+    </pipe>
+
+<!-- clear-vars-on-start="yes" -->
+
+<!--
+    <pipe name="">
+      <other-attributes><![CDATA[]]></other-attributes>
+      <source-transform><![CDATA[
+      ]]></source-transform>
+      <source-rule-other-attributes><![CDATA[]]></source-rule-other-attributes>
+      <target-rule-section><![CDATA[
+      ]]></target-rule-section>
+      <target-common-sections><![CDATA[
+      ]]></target-common-sections>
+      <expected-results>
+      </expected-results>
+    </pipe>
+-->
+  </pipes>
+</test-config>

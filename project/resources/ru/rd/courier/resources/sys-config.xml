@@ -1,0 +1,297 @@
+<courier-config encoding="windows-1251">
+  <scripting
+    target-db-name="##target"
+    source-db-name="##source"
+    data-rs-name="data-result-set"
+    top-label="top-label"
+    std-update-operation-tag="standard-update-operation"
+    break-var="$Break"
+    target-portion-var="$portion"
+    portion-size-var="$portion-size"
+    records-buffer-limit-var="$records-limit"
+    bytes-buffer-limit-var="$bytes-limit"
+    rs-counter-var-name="$rs-counter"
+    courier-object-name="courier"
+    courier-stop-stmt-name="stop"
+    pipe-object-name="pipeline"
+    pipe-exec-process-stmt-name="exec-process"
+    target-profile-object-name="target-profile"
+    target-profile-object-data-stmt="data"
+    source-iterator-object-name="source-iterator"
+    source-main-stmt-name="main"
+    source-before-stmt-name="before"
+    source-after-stmt-name="after"
+    source-finally-stmt-name="finally"
+  />
+
+  <jdbc-drivers>
+
+    <driver class="ru.rd.courier.jdbc.GlTrade.GlTradeDriver">
+    </driver>
+
+    <driver class="oracle.jdbc.OracleDriver"/>
+
+    <driver class="com.microsoft.jdbc.sqlserver.SQLServerDriver">
+      <param name="host-param-name" value="WSID"/>
+      <param name="program-param-name" value="programName"/>
+      <param name="safe-commit" value="IF @@TRANCOUNT > 0 COMMIT"/>
+      <param name="safe-rollback" value="IF @@TRANCOUNT > 0 ROLLBACK"/>
+      <param name="StatementEndMark" value=""/>
+      <param name="VarMark" value="@"/>
+      <param name="AssignTemplate" value="set [%VarName]=[%VarValue]"/>
+      <param name="TrimFuncTemplate" value="ltrim(rtrim([%Argument]))"/>
+      <param name="StandardUpdate-CreateTableTemplate"><![CDATA[
+create table [%TableName] (
+[%TableFieldsDefinitions][%!map TimeStamp 'yes' ', [%TimeStampFieldName] datetime NULL' ELSE '']
+)
+      ]]></param>
+      <param name="StandardUpdate-CreateIndexTemplate"><![CDATA[
+create unique index [%TableName]_u1 on [%TableName] (
+  [%KeyIndexNames]
+)
+      ]]></param>
+      <param name="StandardUpdate-CreateArchTableTemplate"><![CDATA[
+create table [%ArchiveTableName] (
+[%TableFieldsDefinitions][%!map TimeStamp 'yes' ', [%TimeStampFieldName] datetime NULL' ELSE '']
+)
+      ]]></param>
+      <param name="StandardUpdate-DropProcTemplate"><![CDATA[
+if exists (select 1 from sysobjects where id = object_id('[%ProcName]') and type = 'P')
+   drop procedure [%ProcName]
+      ]]></param>
+      <param name="StandardUpdate-CreateProcTemplate"><![CDATA[
+-----------------------------------------------------------
+-- Standard update Courier procedure
+-- Target profile '[%TargetProfile]'
+-- [%!now]
+-----------------------------------------------------------
+CREATE PROCEDURE [%ProcName] [%InputParams]
+AS BEGIN
+
+declare
+    @ErrorCode int
+  , @RowCount int
+
+select @ErrorCode = 0, @RowCount = 0
+
+-----------------------------------------------------------
+set nocount on
+set transaction isolation level read committed
+-----------------------------------------------------------
+
+------------------- input strings trimming ----------------
+[%StringsTrimming]
+-----------------------------------------------------------
+
+    if not exists(select 1 from [%Database]..[%TableName] where [%KeyExpression]) begin
+        -- insert new
+        insert into [%Database]..[%TableName] ([%FieldsList][%!map TimeStamp 'yes' ', [%TimeStampFieldName]' ELSE ''])
+        values([%InputParamsList][%!map TimeStamp 'yes' ', GetDate()' ELSE ''])
+
+        select @ErrorCode = @@error, @RowCount = @@rowcount
+    end else begin -- update if any parameter changed
+        if exists(
+          select 1 from [%Database]..[%TableName]
+          where [%KeyExpression][%!map CompareValues '' '' ELSE ' and ([%CompareValues])']
+        ) begin[%!map ArchiveDbName NULL '' ELSE '
+            insert into [%ArchiveDbName]..a_[%TableName]
+            select * from [%Database]..[%TableName] where [%KeyExpression]']
+
+            update [%Database]..[%TableName]
+            set [%SetFields][%!map TimeStamp 'yes' ', [%TimeStampFieldName]  = GetDate()' ELSE '']
+            where [%KeyExpression]
+
+            select @ErrorCode = @@error, @RowCount = @@rowcount
+        end
+    end
+    [%CustomBlock]
+    return @ErrorCode
+END
+      ]]></param>
+      <param name="StandardUpdate-UpdateTemplate">exec tempdb..[%ProcName] [%UpdateValues]</param>
+    </driver>
+
+
+    <driver class="com.sybase.jdbc2.jdbc.SybDriver">
+      <param name="host-param-name" value="HOSTNAME"/>
+      <param name="program-param-name" value="APPLICATIONNAME"/>
+      <param name="safe-commit" value="IF @@TRANCOUNT > 0 COMMIT"/>
+      <param name="safe-rollback" value="IF @@TRANCOUNT > 0 ROLLBACK"/>
+      <param name="StatementEndMark" value=""/>
+      <param name="VarMark" value="@"/>
+      <param name="AssignTemplate" value="select [%VarName]=[%VarValue]"/>
+      <param name="TrimFuncTemplate" value="ltrim(rtrim([%Argument]))"/>
+      <param name="StandardUpdate-CreateTableTemplate"><![CDATA[
+create table [%TableName] (
+[%TableFieldsDefinitions][%!map TimeStamp 'yes' ', [%TimeStampFieldName] datetime NULL' ELSE '']
+)
+      ]]></param>
+      <param name="StandardUpdate-CreateIndexTemplate"><![CDATA[
+create unique index [%TableName]_u1 on [%TableName] (
+  [%KeyIndexNames]
+)
+      ]]></param>
+      <param name="StandardUpdate-CreateArchTableTemplate"><![CDATA[
+create table [%ArchiveTableName] (
+[%TableFieldsDefinitions][%!map TimeStamp 'yes' ', [%TimeStampFieldName] datetime NULL' ELSE '']
+)
+      ]]></param>
+      <param name="StandardUpdate-DropProcTemplate"><![CDATA[
+if exists (select 1 from sysobjects where id = object_id('[%ProcName]') and type = 'P')
+   drop procedure [%ProcName]
+      ]]></param>
+      <param name="StandardUpdate-CreateProcTemplate"><![CDATA[
+-----------------------------------------------------------
+-- Standard update Courier procedure
+-- Target profile '[%TargetProfile]'
+-- [%!now]
+-----------------------------------------------------------
+CREATE PROCEDURE [%ProcName] [%InputParams]
+AS BEGIN
+
+declare @ErrorCode int
+
+-----------------------------------------------------------
+set nocount on
+set transaction isolation level read committed
+-----------------------------------------------------------
+
+------------------- input strings trimming ----------------
+[%StringsTrimming]
+-----------------------------------------------------------
+
+    if not exists(select 1 from [%Database]..[%TableName] where [%KeyExpression])
+        -- insert new
+        insert into [%Database]..[%TableName] ([%FieldsList][%!map TimeStamp 'yes' ', [%TimeStampFieldName]' ELSE ''])
+        values([%InputParamsList][%!map TimeStamp 'yes' ', GetDate()' ELSE ''])
+    else -- update if any parameter changed
+    begin
+        if exists(
+          select 1 from [%Database]..[%TableName]
+          where [%KeyExpression][%!map CompareValues '' '' ELSE ' and ([%CompareValues])']
+        ) begin[%!map ArchiveDbName NULL '' ELSE '
+            insert into [%ArchiveDbName]..a_[%TableName]
+            select * from [%Database]..[%TableName] where [%KeyExpression]']
+
+            update [%Database]..[%TableName]
+            set [%SetFields][%!map TimeStamp 'yes' ', [%TimeStampFieldName]  = GetDate()' ELSE '']
+            where [%KeyExpression]
+        end
+    end
+    select @ErrorCode = @@error
+    [%CustomBlock]
+    return @ErrorCode
+END
+      ]]></param>
+      <param name="StandardUpdate-UpdateTemplate">exec tempdb..[%ProcName] [%UpdateValues]</param>
+    </driver>
+
+
+    <driver class="ru.rd.courier.jdbc.mock.MockDriver">
+      <param name="host-param-name" value="WSID"/>
+      <param name="program-param-name" value="programName"/>
+      <param name="StatementEndMark" value=""/>
+      <param name="VarMark" value="@"/>
+      <param name="AssignTemplate" value="set [%VarName]=[%VarValue]"/>
+      <param name="TrimFuncTemplate" value="ltrim(rtrim([%Argument]))"/>
+      <param name="StandardUpdate-CreateTableTemplate"><![CDATA[
+create table [%TableName] (
+[%TableFieldsDefinitions][%!map TimeStamp 'yes' ', [%TimeStampFieldName] datetime NULL' ELSE '']
+)
+      ]]></param>
+      <param name="StandardUpdate-CreateIndexTemplate"><![CDATA[
+create unique index [%TableName]_u1 on [%TableName] (
+  [%KeyIndexNames]
+)
+      ]]></param>
+      <param name="StandardUpdate-CreateArchTableTemplate"><![CDATA[
+create table [%ArchiveTableName] (
+[%TableFieldsDefinitions][%!map TimeStamp 'yes' ', [%TimeStampFieldName] datetime NULL' ELSE '']
+)
+      ]]></param>
+      <param name="StandardUpdate-DropProcTemplate"><![CDATA[
+if exists (select 1 from sysobjects where id = object_id('[%ProcName]') and type = 'P')
+   drop procedure [%ProcName]
+      ]]></param>
+      <param name="StandardUpdate-CreateProcTemplate"><![CDATA[
+-----------------------------------------------------------
+-- Standard update Courier procedure
+-- Target profile '[%TargetProfile]'
+-- [%!now]
+-----------------------------------------------------------
+CREATE PROCEDURE [%ProcName] [%InputParams]
+AS BEGIN
+
+declare @ErrorCode int
+
+-----------------------------------------------------------
+set nocount on
+set transaction isolation level read committed
+-----------------------------------------------------------
+
+------------------- input strings trimming ----------------
+[%StringsTrimming]
+-----------------------------------------------------------
+
+    if not exists(select 1 from [%Database]..[%TableName] where [%KeyExpression])
+        -- insert new
+        insert into [%Database]..[%TableName] ([%FieldsList][%!map TimeStamp 'yes' ', [%TimeStampFieldName]' ELSE ''])
+        values([%InputParamsList][%!map TimeStamp 'yes' ', GetDate()' ELSE ''])
+    else -- update if any parameter changed
+    begin
+        if exists(
+          select 1 from [%Database]..[%TableName]
+          where [%KeyExpression][%!map CompareValues '' '' ELSE ' and ([%CompareValues])']
+        ) begin[%!map ArchiveDbName NULL '' ELSE '
+            insert into [%ArchiveDbName]..a_[%TableName]
+            select * from [%Database]..[%TableName] where [%KeyExpression]']
+
+            update [%Database]..[%TableName]
+            set [%SetFields][%!map TimeStamp 'yes' ', [%TimeStampFieldName]  = GetDate()' ELSE '']
+            where [%KeyExpression]
+        end
+    end
+    select @ErrorCode = @@error
+    [%CustomBlock]
+    return @ErrorCode
+END
+      ]]></param>
+      <param name="StandardUpdate-UpdateTemplate">exec tempdb..[%ProcName] [%UpdateValues]</param>
+    </driver>
+
+
+  </jdbc-drivers>
+
+  <receiver-types>
+    <!-- specify class names relative to package ru.rd.courier.datalinks -->
+    <type name="file" class="FileReceiverFactory"/>
+    <type name="ftp" class="FtpSourceFactory"/>
+    <type name="sftp" class="SFtpSourceFactory"/>
+    <type name="mail" class="MailReceiverFactory"/>
+    <type name="xml" class="XmlSourceFactory"/>
+    <type name="xsl" class="XslFactory"/>
+    <type name="url" class="UrlSourceFactory"/>
+    <type name="null" class="NullSourceFactory"/>
+    <type name="stream" class="StreamSourceFactory"/>
+    <type name="jms" class="JmsReceiverFactory"/>
+    <type name="file-system" class="FileSystemSourceFactory"/>
+    <type name="excel-file" class="ExcelReceiverFactory"/>
+    <type name="mssql" class="MsSqlSourceFactory"/>
+    <type name="sybase" class="SybaseSourceFactory"/>    
+    <type name="oracle" class="OracleSourceFactory"/>    
+    <type name="oracle-sp" class="OracleSpSourceFactory"/>    
+    
+  </receiver-types>
+
+  <sys-db sync-interval="5" independent-work="yes">
+  <!-- ;SelectMethod=cursor -->
+    <database
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+      url="jdbc:microsoft:sqlserver://CRM-AM2;DatabaseName=DataExpress"
+      username="DataExpress" password="xpre$$data"
+      check-sql="SELECT 1"
+    />
+
+    <sqls></sqls>
+  </sys-db>
+</courier-config>

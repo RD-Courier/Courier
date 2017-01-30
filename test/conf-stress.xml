@@ -1,0 +1,775 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  database-datetime-format="yyyyMMdd HH:mm:ss.SSS"
+  pipe-log-decorator-template="&lt;[%pipe]&gt; "
+  process-log-decorator-template="&lt;[%pipe] : [%rule]&gt; "
+  program-name="Courier"
+  standard-update-proc-prefix="pcour_"
+>
+
+<!--
+  <external-config file="???"/>
+-->
+
+  <logging dir="conf-dexDeal-log">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="info">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+<!--
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+      </handler>
+-->
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="off">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+
+    <database
+      name="file-system"
+      driver="ru.rd.courier.jdbc.FileSystem.FileSystemDriver"
+      url="jdbc:rd:file-system"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="check"
+    />
+    
+  </db-profiles>
+
+  <source-profiles>
+    <profile name="mock-src1" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <data-query>S (RandomSleep=4 WarningCount=1) RowCount=10 ColCount=2 ColPrefix=col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-src-list" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <portion type="list" max-portion-size="500"/>
+            <list-query>S RowCount=4 ColCount=1 ColPrefix=col</list-query>
+            <data-query>S RowCount=100 ColCount=2 ColPrefix=col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="mock-tgt1" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="10">
+        <before>U [%$pipeline] --> before portion: first uti = [%uti]</before>
+        <after>U [%$pipeline] --> after portion: last uti = [%uti]</after>
+      </portion>
+      <before>
+        <operation>U [%$pipeline] --> before process</operation>
+        <set-var name="uti" value="">U [%$pipeline] --> before process</set-var>
+      </before>
+      <after>
+        <operation>U [%$pipeline] --> after process</operation>
+      </after>
+      <rules>
+        <rule>
+          <operation>U [%col1] [%col2] '[%!if-var aaaa 'var-exists' else 'no-var']' '[%!if-var col1 '[%col1]' else 'no-var']'</operation>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-tgt-fresh" wait-timeout="120">
+      <description>mock-tgt-fresh</description>
+      <portion records="2"/>
+      <rules>
+        <rule>
+          <operation>[%id]	[%col1]		[%col2]</operation>
+        </rule>
+      </rules>
+    </profile>
+
+
+  </target-profiles>
+
+  <pipelines>
+    <pipeline name="mock1" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock2" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock3" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock4" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock5" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock6" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock7" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock8" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock9" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock10" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock11" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="5"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock12" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock13" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock14" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock15" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock16" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock17" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock18" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock19" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="4"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock20" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock21" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock22" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock23" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock24" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock25" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock26" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock27" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock28" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock29" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock30" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="3"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock40" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock41" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock42" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock43" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock44" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock45" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock46" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock47" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock48" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock49" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="2"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock50" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock51" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock52" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock53" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock54" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock55" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock56" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock57" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock58" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <pipeline name="mock59" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>mock1</description>
+      <base-process source-rule="base">
+        <schedule><launch-periodically seconds="1"/></schedule>
+      </base-process>
+    </pipeline>
+
+    <!--
+    <pipeline name="mock-list2" 
+      source-db="mock" source-name="mock-src-list" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Mock Pipe 1 description</description>
+      <base-process source-rule="base" timeout="12"/>
+    </pipeline>
+    -->
+  </pipelines>
+</pipelines-config>

@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="courier" default="package">
+  
+  
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <property name="skip.tests" value="true"/>
+  
+  <!-- Compiler options -->
+  
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="128m"/>
+  <patternset id="compiler.excluded"/>
+  <patternset id="compiler.resources">
+    <include name="**/?*.properties"/>
+    <include name="**/?*.xml"/>
+    <include name="**/?*.html"/>
+    <include name="**/?*.dtd"/>
+    <include name="**/?*.tld"/>
+    <include name="**/?*.gif"/>
+    <include name="**/?*.png"/>
+    <include name="**/?*.jpeg"/>
+    <include name="**/?*.jpg"/>
+  </patternset>
+  <!-- JDK definitions -->
+  
+  <property name="jdk.home.java_version_1.5.0" value="C:\Program Files\Java\jdk1.5.0_07"/>
+  <path id="jdk.classpath.java_version_1.5.0">
+    <fileset dir="${jdk.home.java_version_1.5.0}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+    </fileset>
+  </path>
+
+  <property name="jdk.home.java_version_1.6.0" value="C:\Program Files\Java\jdk1.6.0_14"/>
+  <path id="jdk.classpath.java_version_1.6.0">
+    <fileset dir="${jdk.home.java_version_1.6.0}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+    </fileset>
+  </path>
+
+  <property name="jdk.home.java_version_1.7.0" value="C:\Program Files\Java\jdk1.7.0_80"/>
+  <path id="jdk.classpath.java_version_1.7.0">
+    <fileset dir="${jdk.home.java_version_1.7.0}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+    </fileset>
+  </path>
+  
+  <property name="jdk.home.java_version_1.8.0" value="C:\Program Files\Java\jdk1.8.0_102"/>
+  <path id="jdk.classpath.java_version_1.8.0">
+    <fileset dir="${jdk.home.java_version_1.8.0}">
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+    </fileset>
+  </path>
+
+  <property name="project.jdk.home" value="${jdk.home.java_version_1.8.0}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.java_version_1.8.0"/>
+  <!-- Project Libraries -->
+  <!-- Global Libraries -->
+  
+  
+  <dirname property="module.courier.basedir" file="${ant.file}"/>
+
+  <property name="module.jdk.home.courier" value="${project.jdk.home}"/>
+  <property name="module.jdk.classpath.courier" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.courier" value="${compiler.args}"/>
+  
+  <property name="courier.home.dir" value="${module.courier.basedir}\.."/>
+  <property name="courier.output.dir" value="${module.courier.basedir}\classes"/>
+  <property name="courier.testoutput.dir" value="${module.courier.basedir}/test-classes"/>
+  
+  <path id="courier.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="library.axis.classpath">
+    <pathelement location="${basedir}/../libs/axis/axis-ant.jar"/>
+    <pathelement location="${basedir}/../libs/axis/axis-schema.jar"/>
+    <pathelement location="${basedir}/../libs/axis/axis.jar"/>
+    <pathelement location="${basedir}/../libs/axis/wsdl4j-1.5.1.jar"/>
+    <pathelement location="${basedir}/../libs/axis/commons-discovery-0.2.jar"/>
+    <pathelement location="${basedir}/../libs/axis/commons-httpclient-3.0-rc2.jar"/>
+    <pathelement location="${basedir}/../libs/axis/commons-logging-1.0.4.jar"/>
+    <pathelement location="${basedir}/../libs/axis/jaxrpc.jar"/>
+    <pathelement location="${basedir}/../libs/axis/log4j-1.2.8.jar"/>
+    <pathelement location="${basedir}/../libs/axis/saaj.jar"/>
+    <pathelement location="${basedir}/../libs/axis/wsdl4j-1.5.1.jar"/>
+  </path>
+
+  <property name="crystal.libs.dir" value="${basedir}/../libs/crystal"/>  
+
+  <path id="library.crystal.classpath">
+    <pathelement location="${crystal.libs.dir}/cecore.jar"/>
+    <pathelement location="${crystal.libs.dir}/celib.jar"/>
+    <pathelement location="${crystal.libs.dir}/ceplugins.jar"/>
+    <pathelement location="${crystal.libs.dir}/cesession.jar"/>
+    <pathelement location="${crystal.libs.dir}/corbaidl.jar"/>
+    <pathelement location="${crystal.libs.dir}/ebus405.jar"/>
+    <pathelement location="${crystal.libs.dir}/rascore.jar"/>
+    <pathelement location="${crystal.libs.dir}/serialization.jar"/>
+  </path>
+
+  <property name="courier.libs.dir" value="${basedir}/../libs/main"/>  
+
+  <path id="courier.module.classpath">
+    <path refid="${module.jdk.classpath.courier}"/>
+    <pathelement location="${courier.libs.dir}/activation.jar"/>
+    <pathelement location="${courier.libs.dir}/jconn2.jar"/>
+    <pathelement location="${courier.libs.dir}/commons-net-1.1.0.jar"/>
+    <pathelement location="${courier.libs.dir}/msbase.jar"/>
+    <pathelement location="${courier.libs.dir}/mssqlserver.jar"/>
+    <pathelement location="${courier.libs.dir}/junit.jar"/>
+    <pathelement location="${courier.libs.dir}/commons-lang-2.3.jar"/>
+    <pathelement location="${courier.libs.dir}/msutil.jar"/>
+    <pathelement location="${courier.libs.dir}/xalan.jar"/>
+    <pathelement location="${courier.libs.dir}/jxl.jar"/>
+    <pathelement location="${courier.libs.dir}/jms.jar"/>
+    <pathelement location="${courier.libs.dir}/xml-apis.jar"/>
+    <pathelement location="${courier.libs.dir}/javax.mail-1.5.6.jar"/>
+    <pathelement location="${courier.libs.dir}/xercesImpl.jar"/>
+    <pathelement location="${courier.libs.dir}/mina-core-1.1.7.jar"/>
+    <pathelement location="${courier.libs.dir}/slf4j-api-1.5.2.jar"/>
+    <pathelement location="${courier.libs.dir}/slf4j-jdk14-1.5.2.jar"/>
+    <pathelement location="${courier.libs.dir}/javadbf-0.4.0.jar"/>
+    <pathelement location="${courier.libs.dir}/trilead-ssh2-build211.jar"/>
+    <pathelement location="${courier.libs.dir}/ojdbc6.jar"/>
+    <pathelement location="${courier.libs.dir}/orai18n.jar"/>
+    <pathelement location="${courier.libs.dir}/jasypt-1.5.jar"/>
+    <pathelement location="${courier.libs.dir}/json-path-2.2.0.jar"/>
+    <pathelement location="${courier.libs.dir}/json-smart-2.2.1.jar"/>
+    <pathelement location="${courier.libs.dir}/asm-5.1.jar"/>
+    <pathelement location="${courier.libs.dir}/accessors-smart-1.1.jar"/>
+    <path refid="library.axis.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.courier"/>
+  
+  <patternset id="excluded.from.compilation.courier">
+    <patternset refid="excluded.from.module.courier"/>
+    <patternset refid="compiler.excluded"/>
+  </patternset>
+  
+  <path id="courier.module.sourcepath">
+    <dirset dir="${module.courier.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  <path id="courier.module.testsourcepath">
+    <dirset dir="${module.courier.basedir}">
+      <include name="test-src"/>
+    </dirset>
+  </path>
+
+  <path id="crystal.module.classpath">
+    <path refid="${module.jdk.classpath.courier}"/>
+    <path refid="library.crystal.classpath"/>
+  </path>
+  
+  <property name="build.number.file" value="${module.courier.basedir}/build.number"/>
+  <property name="build.version.file" value="${module.courier.basedir}/build.version"/>
+  <property name="courier.package.sourcepath" value="${module.courier.basedir}/src/ru/rd/courier"/>
+  <property name="version.source.file" value="${courier.package.sourcepath}/Version.java"/>
+  <property name="test.cases.distr.dir" value="${module.courier.basedir}/test-src/ru/rd/courier/distr"/>
+  <property name="courier.distr.dir" value="${module.courier.basedir}/../distr"/>
+  <property name="courier.testdistr.dir" value="${module.courier.basedir}/../distr-test"/>
+  
+  <target name="compile.module.courier" depends="compile.module.courier.production,compile.module.courier.tests" description="compile module Courier"/>
+  
+  <target name="compile.module.courier.production" description="compile module Courier production classes">
+    
+    <property file="${build.version.file}"/>
+    <echo message="Build version = ${build.version}"/>
+    <!--input message="Please enter the build version number:" addproperty="build.version" /-->
+    <fail unless="build.version" message="Property 'build.version' does not exist"/>
+    <tstamp/>
+    <buildnumber file="${build.number.file}"/>
+
+    <replaceregexp 
+      file="${version.source.file}" 
+      match=  'private static final String c_CourierBuildNumber = "(.*)";' 
+      replace='private static final String c_CourierBuildNumber = "${build.number}";' 
+      byline="true"
+    />
+
+    <replaceregexp 
+      file="${version.source.file}" 
+      match=  'private static final String c_CourierBuildTime = "(.*)";' 
+      replace='private static final String c_CourierBuildTime = "${DSTAMP} ${TSTAMP}";' 
+      byline="true"
+    />
+    
+    <replaceregexp 
+      file="${version.source.file}" 
+      match=  'private static final String c_CourierVersion = "(.*)";' 
+      replace='private static final String c_CourierVersion = "${build.version}";' 
+      byline="true"
+    />
+
+
+    <mkdir dir="${courier.output.dir}"/>
+    
+    <javac destdir="${courier.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" 
+      memoryMaximumSize="${compiler.max.memory}" fork="true" executable="${module.jdk.home.courier}/bin/javac"
+    >
+      <compilerarg line="${compiler.args.courier}"/>
+      <bootclasspath refid="courier.module.bootclasspath"/>
+      <classpath refid="courier.module.classpath"/>
+      <src refid="courier.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.courier"/>
+    </javac>
+
+    <copy todir="${courier.output.dir}">
+      <fileset dir="${module.courier.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+        <patternset refid="excluded.from.compilation.courier"/>
+      </fileset>
+    </copy>
+
+    <mkdir dir="${courier.testoutput.dir}"/>
+
+    <javac destdir="${courier.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" 
+      memoryMaximumSize="${compiler.max.memory}" fork="true" executable="${module.jdk.home.courier}/bin/javac"
+    >
+      <compilerarg line="${compiler.args.courier}"/>
+      <bootclasspath refid="courier.module.bootclasspath"/>
+      <classpath>
+        <path refid="courier.module.classpath"/>
+        <pathelement path="${courier.output.dir}"/>
+      </classpath>
+      <src refid="courier.module.testsourcepath"/>
+      <patternset refid="excluded.from.compilation.courier"/>
+    </javac>
+    
+    <copy todir="${courier.testoutput.dir}">
+      <fileset dir="${module.courier.basedir}/test-src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+        <patternset refid="excluded.from.compilation.courier"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="package.module.courier" description="package module" depends="compile.module.courier">
+    <mkdir dir="${courier.distr.dir}"/>
+    
+    <jar destfile="${courier.distr.dir}/courier.zip">
+      <manifest>
+        <attribute name="Main-Class" value="ru.rd.courier.Version"/>
+        <attribute name="Courier-Version" value="${build.version}"/>
+        <attribute name="Build-Time" value="${DSTAMP} ${TSTAMP}"/>
+        <attribute name="Build-Number" value="${build.number}"/>
+      </manifest>
+      <fileset dir="${courier.output.dir}"/>
+      <fileset dir="${module.courier.basedir}/resources"/>
+    </jar>
+    
+    <copy todir="${courier.distr.dir}">
+      <fileset dir="${module.courier.basedir}/resources/ru/rd/courier/resources"/>
+      <fileset dir="${module.courier.basedir}/../misc"/>
+    </copy>
+    <copy todir="${courier.distr.dir}/examples">
+      <fileset dir="${courier.home.dir}/examples"/>
+    </copy>
+    <copy todir="${courier.distr.dir}/docs">
+      <fileset dir="${courier.home.dir}/docs">
+        <include name="*.txt"/>
+      </fileset>
+    </copy>
+
+    <mkdir dir="${courier.testdistr.dir}"/>
+
+    <jar destfile="${courier.testdistr.dir}/courier-test.zip" basedir="${courier.testoutput.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="ru.rd.courier.Version"/>
+        <attribute name="Courier-Version" value="${build.version}"/>
+        <attribute name="Build-Time" value="${DSTAMP} ${TSTAMP}"/>
+        <attribute name="Build-Number" value="${build.number}"/>
+      </manifest>
+    </jar>
+
+    <tstamp>
+      <format property="arch.date" pattern="yyyy-MM-dd-HH-mm-ss"/>
+    </tstamp>
+
+    <loadproperties srcfile="${courier.output.dir}\ru\rd\courier\Version.class" encoding="ISO-8859-1">
+      <filterchain>
+        <classconstants/>
+        <prefixlines prefix="version.class."/>
+      </filterchain>
+    </loadproperties>    
+    
+    <echo file="${courier.distr.dir}\readme.txt">
+Courier: 
+  version: ${version.class.c_CourierVersion} 
+  build time: ${version.class.c_CourierBuildTime}
+  build number: ${version.class.c_CourierBuildNumber}
+    </echo>
+
+    <!--property name="project-archive-name" value="${module.courier.basedir}/../../courier-${arch.date}-${version.class.c_CourierVersion}.zip"/>    
+    <zip 
+      destfile="${project-archive-name}"
+    >
+      <fileset dir="${module.courier.basedir}/..">
+        <include name="project/**"/>
+        <exclude name="project/classes/**"/>
+        <exclude name="project/test-classes/**"/>
+      </fileset>
+      <fileset dir="${module.courier.basedir}/..">
+        <depth max="1"/>
+        <type type="file"/>
+        <include name="test/*"/>
+        <exclude name="**/*.log"/>
+      </fileset>
+      <fileset dir="${module.courier.basedir}/..">
+        <include name="test/test*/**"/>
+        <exclude name="test/test*/logs"/>
+        <exclude name="test/**/*.log"/>
+      </fileset>
+      <fileset dir="${module.courier.basedir}/..">
+        <include name="test/attach-files/**"/>
+      </fileset>
+      <fileset dir="${module.courier.basedir}/..">
+        <include name="docs/**"/>
+      </fileset>
+    </zip>
+
+    <property name="remote.archive.dir" value="\\oban\USER\SoftwareZone\Courier"/>    
+    
+    <-delete>
+      <fileset dir="${remote.archive.dir}" includes="courier-*.zip"/>
+    </delete->
+    <copy file="${project-archive-name}" todir="${remote.archive.dir}"/-->
+  </target>
+
+  <target name="deploy.module.courier" description="deploy courier">
+    <tstamp>
+      <format property="today" pattern="yyyy-MM-dd"/>
+    </tstamp>
+
+    <property file="${build.version.file}"/>
+    <echo message="Build version = ${build.version}"/>
+    <fail unless="build.version" message="Property 'build.version' does not exist"/>
+
+    <delete dir="\\Elf1\appdevelopment\Courier\${build.version}"/>
+    <copy todir="\\Elf1\appdevelopment\Courier\${build.version}">
+      <fileset dir="${courier.distr.dir}"/>
+    </copy>
+  </target>
+  
+  <property name="manager.dir" value="${module.courier.basedir}\CourierManager"/>
+  <property name="manager.project.dir" value="${manager.dir}\Project"/>
+  <property name="manager.output.dir" value="${manager.project.dir}\classes"/>
+  <property name="manager.distr.dir" value="${manager.dir}\distr"/>
+  <property name="manager.build.version.file" value="${manager.dir}\build.version"/>
+
+  <target name="compile.module.manager" description="compile module CourierManager">
+
+    <path id="manager.module.sourcepath">
+      <dirset dir="${manager.project.dir}">
+        <include name="src"/>
+      </dirset>
+    </path>
+
+    <mkdir dir="${manager.output.dir}"/>
+
+    <javac destdir="${manager.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" 
+      fork="true" executable="${module.jdk.home.courier}/bin/javac"
+    >
+      <compilerarg line="${compiler.args.courier}"/>
+      <bootclasspath refid="courier.module.bootclasspath"/>
+      <classpath>
+        <path refid="courier.module.classpath"/>
+        <pathelement path="${courier.distr.dir}\courier.zip"/>
+      </classpath>
+      <src refid="manager.module.sourcepath"/>
+    </javac>
+
+  </target>
+  
+  <target name="package.module.manager" description="package manager module" depends="compile.module.manager">
+    <property file="${manager.build.version.file}"/>
+    <echo message="Manager Build version = ${manager.build.version}"/>
+    <!--input message="Please enter the Manager build version number:" addproperty="manager.build.version" /-->
+    <fail unless="manager.build.version" message="Property 'manager.build.version' does not exist"/>
+    <tstamp/>
+    
+    <mkdir dir="${manager.distr.dir}"/>
+
+    <jar destfile="${manager.distr.dir}/courier-manager.zip" basedir="${manager.output.dir}">
+      <manifest>
+        <attribute name="Manager-Version" value="${manager.build.version}"/>
+        <attribute name="Build-Time" value="${DSTAMP} ${TSTAMP}"/>
+      </manifest>
+    </jar>
+
+    <copy todir="${manager.distr.dir}">
+      <fileset dir="${manager.dir}">
+        <include name="config-example.xml"/>
+        <include name="manager.cmd"/>
+      </fileset>
+    </copy>
+
+    <echo file="${manager.distr.dir}\readme.txt">
+Courier Manager: 
+  version: ${manager.build.version}
+  package time: ${DSTAMP} ${TSTAMP}
+    </echo>
+
+  </target>
+
+  <target name="deploy.module.manager" description="cleanup module" depends="package.module.manager">
+    <!--tstamp>
+      <format property="today" pattern="yyyy-MM-dd"/>
+    </tstamp-->
+
+    <delete dir="\\Elf1\appdevelopment\CourierManager\${manager.build.version}"/>
+    <copy todir="\\Elf1\appdevelopment\CourierManager\${manager.build.version}">
+      <fileset dir="${manager.distr.dir}"/>
+    </copy>
+  </target>
+
+  <!-- ************************************** -->
+
+  <property name="wssource.dir" value="${module.courier.basedir}\WebServiceSource"/>
+  <property name="wssource.project.dir" value="${wssource.dir}"/>
+  <property name="wssource.output.dir" value="${wssource.project.dir}\classes"/>
+  <property name="wssource.distr.dir" value="${wssource.project.dir}\distr"/>
+  <property name="wssource.distr.dir.courier" value="${courier.distr.dir}\ws-source"/>
+  <property name="wssource.build.version.file" value="${wssource.dir}\build.version"/>
+  
+
+  <target name="compile.module.wssource" description="compile module WebServiceSource">
+
+    <property name="wssource.libs" value="${wssource.dir}\libs"/>
+    <path id="library.axis2.classpath">
+      <pathelement location="${wssource.libs}/axiom-api-1.2.7.jar"/>
+      <pathelement location="${wssource.libs}/axiom-dom-1.2.7.jar"/>
+      <pathelement location="${wssource.libs}/axiom-impl-1.2.7.jar"/>
+      <pathelement location="${wssource.libs}/axis2-jaxws-1.4.1.jar"/>
+      <pathelement location="${wssource.libs}/axis2-jaxws-api-1.4.1.jar"/>
+      <pathelement location="${wssource.libs}/axis2-jws-api-1.4.1.jar"/>
+      <pathelement location="${wssource.libs}/axis2-kernel-1.4.1.jar"/>
+      <pathelement location="${wssource.libs}/axis2-metadata-1.4.1.jar"/>
+      <pathelement location="${wssource.libs}/backport-util-concurrent-3.1.jar"/>
+      <pathelement location="${wssource.libs}/commons-codec-1.3.jar"/>
+      <pathelement location="${wssource.libs}/commons-httpclient-3.1.jar"/>
+      <pathelement location="${wssource.libs}/commons-io-1.4.jar"/>
+      <pathelement location="${wssource.libs}/commons-logging-1.1.1.jar"/>
+      <pathelement location="${wssource.libs}/neethi-2.0.4.jar"/>
+      <pathelement location="${wssource.libs}/woden-api-1.0M8.jar"/>
+      <pathelement location="${wssource.libs}/woden-impl-dom-1.0M8.jar"/>
+      <pathelement location="${wssource.libs}/wsdl4j-1.6.2.jar"/>
+      <pathelement location="${wssource.libs}/XmlSchema-1.4.2.jar"/>
+    </path>
+    
+    <path id="wssource.module.sourcepath">
+      <dirset dir="${wssource.project.dir}">
+        <include name="src"/>
+      </dirset>
+    </path>
+
+    <mkdir dir="${wssource.output.dir}"/>
+
+    <javac destdir="${wssource.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" 
+      fork="true" executable="${module.jdk.home.courier}/bin/javac"
+    >
+      <compilerarg line="${compiler.args.courier}"/>
+      <bootclasspath refid="courier.module.bootclasspath"/>
+      <classpath>
+        <path refid="courier.module.classpath"/>
+        <pathelement path="${courier.distr.dir}\courier.zip"/>
+        <path refid="library.axis2.classpath"/>
+      </classpath>
+      <src refid="wssource.module.sourcepath"/>
+    </javac>
+
+  </target>
+  
+  <target name="package.module.wssource" description="package wssource module" depends="compile.module.wssource">
+    <property file="${wssource.build.version.file}"/>
+    <echo message="WebService Source Build version = ${wssource.build.version}"/>
+    <!--input message="Please enter the build version number:" addproperty="build.version" /-->
+    <fail unless="wssource.build.version" message="Property 'wssource.build.version' does not exist"/>
+    <tstamp/>
+
+    <mkdir dir="${wssource.distr.dir}"/>
+
+    <jar destfile="${wssource.distr.dir}/courier-axis2.jar" basedir="${wssource.output.dir}">
+      <manifest>
+        <attribute name="Version" value="${wssource.build.version}"/>
+        <attribute name="Package-Time" value="${DSTAMP} ${TSTAMP}"/>
+      </manifest>
+    </jar>
+
+    <echo file="${wssource.distr.dir}\readme.txt">
+Courier WebService Source: 
+  version: ${wssource.build.version}
+  package time: ${DSTAMP} ${TSTAMP}
+    </echo>
+
+    <copy todir="${wssource.distr.dir}">
+      <fileset dir="${wssource.dir}">
+        <include name="config-example.xml"/>
+        <include name="wssource.cmd"/>
+      </fileset>
+    </copy>
+    <copy todir="${wssource.distr.dir}\axis2">
+      <fileset dir="${wssource.dir}\libs"/>
+    </copy>
+
+    <mkdir dir="${wssource.distr.dir.courier}"/>
+    <copy todir="${wssource.distr.dir.courier}">
+      <fileset dir="${wssource.distr.dir}"/>
+    </copy>
+  </target>
+
+  <target name="deploy.module.wssource" description="wssource deploy" depends="package.module.wssource">
+    <!--tstamp>
+      <format property="today" pattern="yyyy-MM-dd"/>
+    </tstamp-->
+<!--
+    <delete dir="\\Elf1\appdevelopment\CourierWSSource\${wssource.build.version}"/>
+-->
+    <mkdir dir="${wssource.distr.dir.courier}"/>
+    <copy todir="${wssource.distr.dir.courier}">
+      <fileset dir="${wssource.distr.dir}"/>
+    </copy>
+  </target>
+
+  <!-- ******************************************* -->
+  
+  <target name="compile.module.courier.tests" depends="compile.module.courier.production" 
+    description="compile module Courier test classes" unless="skip.tests"
+  />
+  
+  <target name="clean.module.courier" description="cleanup module">
+    <delete dir="${courier.output.dir}"/>
+    <delete dir="${courier.testoutput.dir}"/>
+  </target>
+  
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+  
+  <target name="clean" depends="clean.module.courier" description="cleanup all"/>
+  
+  <target name="package" depends="package.module.courier, package.module.manager, package.module.wssource" description="package all"/>
+  <target name="deploy" depends="deploy.module.courier, deploy.module.manager, deploy.module.wssource" description="deploy all"/>
+  <target name="all" depends="init, clean, deploy.module.courier" description="all"/>
+</project>

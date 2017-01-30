@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  database-datetime-format="yyyyMMdd HH:mm:ss.SSS"
+  pipe-log-decorator-template="&lt;[%pipe]&gt; "
+  process-log-decorator-template="&lt;[%pipe] : [%rule]&gt; "
+  program-name="Courier"
+  standard-update-proc-prefix="pcour_"
+>
+
+  <logging dir="conf-dexDeal-log">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="info"/>
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+      </handler>
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="off">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+    
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+  </db-profiles>
+
+  <source-profiles>
+    <profile name="mock-src1" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <before>
+              <operation>U Source profile before</operation>
+            </before>
+            <data-query>S RowCount=10 ColCount=2 ColPrefix=col</data-query>
+            <after>
+              <log-message>**** Logging Before after operation</log-message>
+              <operation>U Source profile after</operation>
+              <log-message>**** Logging After after operation</log-message>
+            </after>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="mock-tgt1" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="10">
+        <before>U before portion: first uti = [%uti]</before>
+        <after>U after portion: last uti = [%uti]</after>
+      </portion>
+      <before>
+        <operation>U before process</operation>
+        <set-var name="uti" value="">U before process</set-var>
+      </before>
+      <after>
+        <operation>U after process</operation>
+      </after>
+      <rules>
+        <rule>
+          <operation>U [%col1] [%col2] 
+            <aaaa aaaa-attr1="aaaa-attr1 Value" aaaa-attr2="aaaa-attr2 Value">1111<bbbb bbbb-attr1="bbbb-attr1 Value">2222</bbbb>1111</aaaa></operation>
+        </rule>
+      </rules>
+    </profile>
+
+
+    <profile name="mock-tgt-fresh" wait-timeout="120">
+      <description>mock-tgt-fresh</description>
+      <portion records="2"/>
+      <rules>
+        <rule>
+          <operation>[%id]	[%col1]		[%col2]</operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <pipelines>
+<!--
+    <pipeline name="mock1" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Mock Pipe 1 description</description>
+      <base-process source-rule="base">
+        <schedule>
+          <minutes start="48" stop="50">
+            <launch-periodically unit="second" interval="10"/>
+          </minutes>
+        </schedule>
+      </base-process>
+    </pipeline>
+-->
+
+    <pipeline name="mock2" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Mock Pipe 1 description</description>
+      <base-process source-rule="base">
+        <schedule>
+          <minutes start="10" stop="51">
+            <launch-periodically unit="second" interval="10"/>
+          </minutes>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+<!--            <launch-once /> -->
+
+<!--
+    <pipeline name="mock-fresh"
+      source-db="mock" source-name="mock-src-interval"
+      target-db="mock" target-name="mock-tgt-fresh"
+      checkpoint-interval="600" mark-type="i"
+      data-logging="yes" data-logging-buffered="no"
+      clear-vars-on-start="yes"
+    >
+      <description>mock-fresh</description>
+      <base-process source-rule="base" timeout="30"/>
+    </pipeline>
+-->
+<!--
+    <pipeline name="mock-list" 
+      source-db="mock" source-name="mock-src-list" 
+      target-db="mock" target-name="mock-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Mock Pipe 1 description</description>
+      <base-process source-rule="base" timeout="1000"/>
+    </pipeline>
+-->
+
+  </pipelines>
+</pipelines-config>

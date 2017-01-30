@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<system-db>
+    <pipe checkpoint-interval="600" code="mock1" desc="mock1"
+        int-mark="3" mark-type="i" pipe-value=""/>
+</system-db>

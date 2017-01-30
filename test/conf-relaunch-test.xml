@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  program-name="CourTest"
+>
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="S RowCount=1 ColCount=1"
+    />
+  </db-profiles>
+
+  <pipelines>
+    <pipeline name="mock1" 
+      source-db="mock" source-name="mock-src1" 
+      target-db="$NULL" target-name="test-tgt1"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Mock Pipe 1</description>
+      <base-process source-rule="base">
+        <schedule>
+          <time-table period="week">
+            <start week-day-name="monday"/>
+            <stop week-day-name="saturday"/>
+            <time-table period="day">
+              <start hour="12"/>
+              <stop hour="15" minute="20"/>
+              <launch-periodically seconds="15">
+                <relaunch-if empty="yes" error="yes">
+                  <time-out seconds="2"/>
+                  <limits end-of-schedule="yes"/>
+                </relaunch-if>
+              </launch-periodically>
+            </time-table>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+  </pipelines>
+
+  <source-profiles>
+    <profile name="mock-src1" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <data-query>S RowCount=10 ColCount=2 ColPrefix=col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-src-list" wait-timeout="120">
+      <description>src1 mock description</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>test-all description</description>
+          <transform>
+            <portion type="list" max-portion-size="500"/>
+            <list-query>S 4 1 col</list-query>
+            <data-query>S 100 2 col</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-src-interval" wait-timeout="30">
+      <description>mock-src-interval</description>
+      <rules>
+        <rule name="base" type="fresh" interval-column="id">
+          <description>base</description>
+          <transform>
+            <data-query>S TableName=TestFresh ColName=id Greater=[%$IntervalValue]</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="test-tgt1" wait-timeout="120">
+      <description>test-tgt1</description>
+      <portion records="10" />
+      <rules>
+        <rule>
+          <operation>[%$pipeline] --> [%id] [%col1] [%col2]</operation>
+        </rule>
+      </rules>
+    </profile>
+
+    <profile name="mock-tgt-fresh" wait-timeout="120">
+      <description>mock-tgt-fresh</description>
+      <portion records="2"/>
+      <rules>
+        <rule>
+          <operation>[%id]	[%col1]		[%col2]</operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <logging dir="_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+      </handler>
+      <handler type="console" level="all"/>
+<!--
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+      </handler>
+-->
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="off">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+</pipelines-config>

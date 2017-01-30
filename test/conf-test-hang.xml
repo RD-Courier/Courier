@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  sys-config="sys-config.xml"
+  program-name="CourierTest"
+>
+
+<!--
+  enable-database-pools-restrictions="no"
+  skip-unused-pools="no"
+  check-used-databases="no"
+  common-databases="common-databases.xml"
+  transformed-conf-file="conf-mock.xml.transformed.xml"
+  assembled-conf-file="conf-mock.xml.assembled.xml"
+-->
+
+  <db-profiles>
+    <database
+      name="mock"
+      driver="ru.rd.courier.jdbc.mock.MockDriver"
+      url="jdbc:rd:mock:./JdbcMockResults.out"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="-1"
+      shrink-interval-min="-1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="-1"
+      check-sql="S RowCount=1 ColCount=1"
+      max-error-count="2"
+      expire-period-min="10"
+      allocate-timeout="5s"    
+    >
+      <param name="sleep" value="0s"/>
+    </database>
+
+    <source
+      name="TestData"
+      type="stream"
+    >
+      <stream type="const">
+        <data><![CDATA[ID,Name
+1,aaaa
+2,bbbb
+3,aaaa
+4,bbbb]]></data>
+      </stream>
+      <parser type="csv" separator="," encoding="UTF-16">
+        <header type="csv"/>
+      </parser>
+    </source>
+
+    <receiver
+      type="excel-file"
+      name="TestExcel"
+    />
+  </db-profiles>
+  
+  <pipelines 
+    checkpoint-interval="5" 
+    data-logging="yes" data-logging-buffered="no"
+  >
+    
+    <pipeline name="Test"
+      source-db="TestData"   source-name="Test" 
+      target-db="mock"       target-name="Test"
+    >
+      <description/>
+      
+      <base-process source-rule="main">
+        <schedule>
+          <time-table period="day">
+            <launch-once/>
+          </time-table>
+        </schedule>
+      </base-process>
+    </pipeline>
+
+  </pipelines>
+
+  <source-profiles>
+    <profile name="Test" wait-timeout="200">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <description/>
+          <transform>
+            <data-query/>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="Test" wait-timeout="200">
+      <description>PricesToHoney</description>
+      <rules>
+        <rule>
+          <operation><![CDATA[U (Sleep=100000) aaaa]]></operation>
+        </rule>
+      </rules>
+    </profile>    
+  </target-profiles>
+
+  <logging dir="!_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="1"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="1"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="10"/>
+      </handler-->
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+</pipelines-config>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config
+  program-name="CourierDbfTest"
+>
+
+<!--
+  enable-database-pools-restrictions="no"
+  skip-unused-pools="no"
+  check-used-databases="no"
+  common-databases="common-databases.xml"
+  transformed-conf-file="conf-mock.xml.transformed.xml"
+  assembled-conf-file="conf-mock.xml.assembled.xml"
+-->
+
+  <db-profiles>
+
+    <source
+      name="dbf"
+      type="stream"
+    >
+      <stream type="file" file="test.dbf"/>
+
+      <parser type="dbf"         
+        encoding="cp866"
+        cancel-trim="yes"
+      />
+    </source>
+
+  </db-profiles>
+  
+  <pipelines>
+    <pipeline name="test" 
+      source-db="dbf" source-name="test" 
+      target-db="$NULL" target-name="test"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>Test</description>
+      <base-process source-rule="base" timeout="1000000"/>
+    </pipeline>
+
+  </pipelines>
+
+  <source-profiles>
+    <profile name="test" wait-timeout="120">
+      <description/>
+      <rules>
+        <rule name="base" type="all">
+          <description/>
+          <transform>
+            <data-query></data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="test" wait-timeout="120">
+      <description/>
+      <portion records="20"/>
+      <rules><rule>
+        <operation>
+ISIN=[%ISIN]
+NAME=[%NAME]
+PRICE=[%PRICE]
+VOL=[%VOL]
+DATE=[%DATE]
+TIME=[%TIME]
+DATE2=[%DATE2]
+DATE_EXP=[%DATE_EXP]
+</operation>
+      </rule></rules>
+    </profile>
+
+  </target-profiles>
+
+  <logging dir="_Logs">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="1"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="ru.rd.courier" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="1"></param>
+      </handler>
+
+      <handler type="console" level="info"/>
+
+        <!--param name="same-message-buffer-size" value="2"/-->
+        <!--param name="same-message-interval-min" value="1"/-->
+
+      <!--handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@rdxxx.ru"></param>
+        <param name="to" value="testemail@rdxxx.ru"></param>
+        <param name="smtp-host" value="magician.rd.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="10"/>
+      </handler-->
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="info">
+        <handler type="file-by-days" level="info">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="1"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+</pipelines-config>

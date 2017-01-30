@@ -1,0 +1,104 @@
+/*
+ * Copyright 2005-2017 Courier AUTHORS: please see AUTHORS file.
+ *
+ * Redistribution and use in source and binary forms, with or
+ * without modification, are permitted provided that the following
+ * conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above
+ *    copyright notice, this list of conditions and the
+ *    following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above
+ *    copyright notice, this list of conditions and the following
+ *    disclaimer in the documentation and/or other materials
+ *    provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY AUTHORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * <COPYRIGHT HOLDER> OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+package ru.rd.courier.jdbc;
+
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
+public abstract class EmptyResultSetMetaData implements ResultSetMetaData {
+    public boolean isAutoIncrement(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isCaseSensitive(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isSearchable(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isCurrency(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public int isNullable(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isSigned(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public int getColumnDisplaySize(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getColumnLabel(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getSchemaName(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getTableName(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getCatalogName(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isReadOnly(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isWritable(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isDefinitelyWritable(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getColumnClassName(int column) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+}

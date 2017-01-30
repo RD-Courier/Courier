@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<config>
+  <logging
+    severity="info"
+    mail-active="false"
+    smtp-host="magician.rd.ru"
+    mail-from="testemail@rdxxx.ru"
+    mail-to="testemail@rdxxx.ru"
+  />
+  <courier
+    java-executable="D:\Program Files\Java\jdk1.5.0\bin\java.exe"
+    libs-path="C:\Projects\IT\3D_Projects\Courier\libs"
+    distr-path="C:\Projects\IT\3D_Projects\Courier\test\distr"
+    more-params="-DMockDbConf=C:\Projects\IT\3D_Projects\Courier\test\mockdatabase.xml"
+  />
+
+  <scheduled-task 
+    name="test-stepin" 
+    begin-time="12:51" end-time="12:56"
+    conf-file="C:\Projects\IT\3D_Projects\Courier\test\conf-mock.xml"
+    process-failure-freeze-period="100000"
+  />
+</config>

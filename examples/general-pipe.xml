@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging dir="conf-test-std-update-logs"> ... </logging>
+  <db-profiles> ... </db-profiles>
+  <source-profiles> ... </source-profiles>
+  <target-profiles> ... </target-profiles>
+
+  <pipelines>
+
+    <schedule>
+      <!-- 
+      schedule initialization as for base-process but instead of launchers to
+      start pipeline schedule use <pipe-schedule/>. The example below make all 
+      pipelines to start every day at 7.00 and to stop at 21.00:
+
+      <time-table period="day">
+        <start hour="7"/>
+        <stop hour="21"/>
+        <pipe-schedule/>
+      </time-table>
+
+      -->
+    </schedule>
+    
+    <script>
+      {operations} or <inner-script/> <!-- tag 'inner-script' invokes script of pipeline -->
+    </script>
+  
+    <active-source type="...">
+    </active-source>
+    
+    <!-- 
+    Pipeline attributes:
+
+    source-db              - Default source database. Contains data to transfer.
+                             All requests and operations against this database
+                             are logged (see <data-logging> description).
+                             That is database in use if no db-name is specified
+                             for database operations inside source events (like
+                             before, after, ...)
+    source-name            - Source profile name.
+    source-wait-timeout    - overrides source's wait-timeout setting. Integer, seconds.
+    target-db              - Default target database. It will consume data from
+                             source.
+                             All requests and operations against this database
+                             are logged (see <data-logging> description).
+                             That is database in use if no db-name is specified
+                             for database operations inside target events (like
+                             before, after, ...)
+    target-name            - Target profile name.
+    target-wait-timeout    - overrides target's wait-timeout setting. Integer, seconds.
+    mark-type              - optional (" " - no interval value) - Interval value type:
+                               "i" - integer
+                               "d" - date
+                             If absent then there is no interval value.
+    initial-interval-value - Initial interval value template. 
+                             For example: [%!now yyyyMMdd 00:00:00.000]
+    checkpoint-interval    - If a transfer process does not notify system db on
+                             a progress within this interval then system db
+                             tries to stop process within <stop-timeout> and if
+                             fails interrupts it.
+    max-working-count      - maximum simutaneously working processes. Default = 0 - no limitations.
+    stop-timeout           - optional (10 sec) - see checkpoint-interval description
+    data-logging           - if "yes" then all requests and operations against
+                             default source and target databases are logged in
+                             contrast to all other databases.
+    data-logging-buffered  - meaning is clear from name.
+    clear-vars-on-start    - specifies to clear pipeline persistent variables
+                             (for example $Interval, $PipeValue) on courier
+                             start.
+    clear-vars-period      - specifies to clear pipeline persistent variables
+                             on courier start and in a specified period.
+                             
+                             {time interval} format: <number><unit>
+                             where unit: 
+                               ms   - milliseconds
+                               s    - seconds
+                               m    - minutes
+                               h    - hours
+                               d    - days
+    warning-as-error       - throws exception in case of batch warnings
+    ignore-error-number    - optional (0) - ignores target block error if target
+                             error has already successively occured 
+                             (ignore-error-number - 1) previous times.
+                             If 0 then errors are not ignored.
+    all-ignore-error-number
+    fresh-ignore-error-number 
+    gap-ignore-error-number   - default ignore-error-number for source profile of 
+                                corresponding type
+    -->
+    
+    <!--
+    Pipeline system variables:
+
+    $Id              - process id. They are unique within Courier working session.
+    $ConfigPath      - Courier config file directory.
+    $Break           - setting it to "1" stops process.
+    $IntervalType    - can be: 
+                         " " - if no interval value
+                         "i" - integer. Initial value is 0
+                         "d" - date-time. Initial value is 1970/01/01 00:00:00.000
+                         "b" - bynary
+    $IntervalColumn  - name of variable which is used as source of interval value
+    $IntervalValue   - current interval value. Can be changed at your own discretion.
+    $Step            - (obsolete) value of source rule interval-step option
+    $RecordCount     - quantity of currently processed records
+    $PipeValue       - value of pipeline persistent variable. (persistence means that value is stored between Courier starts)
+    $pipeline        - pipeline name
+    $source-profile  - source profile name
+    $source-rule     - source rule name
+    $target-profile  - target profile name
+    $bytes-limit     - value of target portion "bytes" option
+    $records-limit   - value of target portion "records" option
+    $portion-size    - current target portion buffer size. Valid only in target portion "before" and "after" templates
+    $error           - error description. Exists within statements: 
+                         catch    - always
+                         finally  - if error occured and so can be used as error indicator
+    -->
+    <pipeline name="{string}"
+      source-db="{string}"
+      source-name="{string}"
+      target-db="{string}"
+      target-name="{string}"
+      mark-type="" initial-interval-value="{template}"
+      checkpoint-interval="{integer-seconds}" stop-timeout="{period}"
+      data-logging="{yes/no}" data-logging-buffered="{yes/no}"
+      clear-vars-on-start="{yes/no}" clear-vars-period="{time interval}"
+      warning-as-error="{yes/no}"
+      ignore-error-count="{number}"
+    >
+      <description>{string}</description>
+      <base-process source-rule="{string}" timeout="{integer-seconds}">
+        <schedule>
+<!--
+Scheduling principles rest on notions of 
+time-table as entity determining some work period and 
+launcher starting process.
+Time-table has the properties:
+  period - specifying working cycle. 
+    Possible values: month, week, day, hour, minute - with evident meanings
+  start - shift from cycle start to start work period
+  stop - shift from cycle start to stop work period
+    start and stop tags have the following attributes:
+      month - month number: 0 - 11 (0 for january, ...)
+      month-day - month day: 1 - 31
+      week-day-name - week day name (case-insensitive): MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
+      week-day - week day number: SUNDAY = 1, MONDAY = 2, TUESDAY = 3, ...
+      hour - day hour: 0 - 23
+      minute - minute of hour: 0 - 59
+      second - second of minute: 0 - 59
+      millisecond - millisecond of seconf: 0 - 999
+
+For example:
+1) Every week starting from monday 12:30 till saturday
+  <time-table period="week">
+    <start week-day-name="monday" hour="12" minute="30"/>
+    <stop week-day-name="saturday"/>
+  </time-table>
+
+2) Every day starting from 12:00:00 till 15:20:00
+  <time-table period="day">
+    <start hour="12"/>
+    <stop hour="15" minute="20"/>
+  </time-table>
+
+Launchers are any of the following type:
+  launch-periodically - launches periodically. Has attributes:
+    months, days, hours, minutes, seconds, milliseconds - determining launch interval.
+    For example: 
+      <launch-periodically hours="2" minutes="30"/> - launches in 2 hours and 30 minutes
+
+  launch-once - launches once at the parent time-table start.
+  launch-once-exact - launches once at the time formed as parent time-table start 
+    with some day-time parts set determined by its (optional) attributes which are the same as for start tag of time-table.
+    For example:
+    <launch-once-exact hour="12" minute="30"/>
+
+A launcher may have relaunch specifier tag: relaunch-if 
+  with the following optional attributes
+    empty="yes" - relaunches process if RecordCount = 0
+    error="yes" - relaunches process if ErrorCount > 0
+  and imbedded tags:
+    time-out - specifies relaunch timeout. Has the same attributes as launch-periodically.
+    limits - specifies relaunch limits. Its attributes:
+      end-of-schedule="yes" - until the closest stop of parent time-table
+      until-next-launch="yes" - until next launch of this launcher
+      max-relaunch-count="{number}" - until it has been relaunched {number} times
+For example:
+  <launch-once>
+    <relaunch-if empty="yes" error="yes">
+      <time-out minutes="2" seconds="30"/>
+      <limits end-of-schedule="yes" until-next-launch="yes"/>
+    </relaunch-if>
+  </launch-once>
+
+Time-table can include any number of time-tables and launchers which are working within its work period.
+For example:
+1) On monday and tuesday 
+  from 12:00:00 to 15:20:00 launching process every 5 second and
+  from 17:00:00 to 19:00:00 launching process every 30 second
+  all day long launching process every 150 minutes
+  launching monday 12:30:00
+
+  <time-table period="week">
+    <start week-day-name="monday"/>
+    <stop week-day-name="tuesday"/>
+    <time-table period="day">
+      <start hour="12"/>
+      <stop hour="15" minute="20"/>
+      <launch-periodically seconds="5"/>
+    </time-table>
+    <time-table period="day">
+      <start hour="17"/>
+      <stop hour="19"/>
+      <launch-periodically seconds="30"/>
+    </time-table>
+    <launch-periodically hours="2" minutes="30"/>
+    <launch-once-exact hour="12" minute="30"/>
+  </time-table>
+-->
+
+          <time-table period="week">
+            <start week-day-name="monday"/>
+            <stop week-day-name="saturday"/>
+            <time-table period="day">
+              <start hour="12"/>
+              <stop hour="15" minute="20"/>
+              <launch-once>
+                <relaunch-if empty="yes" error="yes">
+                  <time-out seconds="10"/>
+                  <limits end-of-schedule="yes" until-next-launch="yes"/>
+                </relaunch-if>
+              </launch-once>
+            </time-table>
+          </time-table>
+
+        </schedule>
+
+        <clear-vars>
+          <!-- clear vars schedule -->
+        </clear-vars>
+      </base-process>
+    </pipeline>
+    ...
+  </pipelines>
+</pipelines-config>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<exch:rootF1c xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:exch="Pythoness.Exchange" xmlns="Pythoness.Exchange">
+    <SystemInfo>
+        <IDString>730D80AA-B988-44C6-82CD-E1AC57764968</IDString>
+    </SystemInfo>
+    <ServiceInfo>
+        <Type>
+            <Code>Ф01в</Code>
+            <Name>Заявка на конвертацию инвестиционных паев</Name>
+        </Type>
+        <DocDate>
+            <ADateTime>2006-11-02T10:07:58</ADateTime>
+            <ATimeZone>+03:00</ATimeZone>
+        </DocDate>
+        <AgentPointID>
+            <AgentName>Имя компании</AgentName>
+            <PointName>Имя точки</PointName>
+        </AgentPointID>
+        <Number>
+            <ClaimNumber>1/1/1000149</ClaimNumber>
+        </Number>
+    </ServiceInfo>
+    <FromAccount>
+        <Number>99995957018</Number>
+        <Pif>
+            <ControllerInfo>
+                <Name>Имя компании</Name>
+            </ControllerInfo>
+            <Name>Тут будет имя фонда</Name>
+        </Pif>
+    </FromAccount>
+    <ToAccount>
+        <Number>99995957018</Number>
+        <Pif>
+            <ControllerInfo>
+                <Name>ООО Рога и копыта</Name>
+            </ControllerInfo>
+            <Name>Тут будет имя инвест фонда</Name>
+        </Pif>
+    </ToAccount>
+    <Investor>
+        <LegalType>
+            <Name>Физическое Лицо</Name>
+        </LegalType>
+        <Person>
+            <Name>Игошев Дмитрий Вениаминович  </Name>
+            <PersonIDDoc>
+                <Type>
+                    <Code>21</Code>
+                    <Name>Паспорт гражданина Российской Федерации</Name>
+                </Type>
+                <Serial>46 00</Serial>
+                <Number>852112</Number>
+                <IssueDate>2001-06-14</IssueDate>
+                <Issuer>Электрогорск.о/м Павлово-Посадс.ОВД МО к.п.503-078</Issuer>
+            </PersonIDDoc>
+        </Person>
+    </Investor>
+    <NotifyMethod>
+        <Name>На пункт продажи</Name>
+    </NotifyMethod>
+    <ShareCount>130</ShareCount>
+</exch:rootF1c>

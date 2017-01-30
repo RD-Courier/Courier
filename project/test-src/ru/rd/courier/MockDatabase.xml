@@ -1,0 +1,135 @@
+<mock-database>
+  <tables>
+    <table name="TestFresh" initial-records-count="0">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="col1" type="string" size="20"/>
+      <column name="col2" type="string"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="col1" value="col1-1"/>
+          <field name="col2" value="col2-1"/>
+        </record>
+        <record>
+          <field name="id" value="2"/>
+          <field name="col1" value="col1-2"/>
+          <field name="col2" value="col2-2"/>
+        </record>
+        <record>
+          <field name="id" value="3"/>
+          <field name="col1" value="col1-3"/>
+          <field name="col2" value="col2-3"/>
+        </record>
+        <record>
+          <field name="id" value="4"/>
+          <field name="col1" value="col1-4"/>
+          <field name="col2" value="col2-4"/>
+        </record>
+        <record>
+          <field name="id" value="5"/>
+          <field name="col1" value="col1-5"/>
+          <field name="col2" value="col2-5"/>
+        </record>
+        <record>
+          <field name="id" value="6"/>
+          <field name="col1" value="col1-6"/>
+          <field name="col2" value="col2-6"/>
+        </record>
+        <record>
+          <field name="id" value="7"/>
+          <field name="col1" value="col1-7"/>
+          <field name="col2" value="col2-7"/>
+        </record>
+        <record>
+          <field name="id" value="8"/>
+          <field name="col1" value="col1-8"/>
+          <field name="col2" value="col2-8"/>
+        </record>
+      </data>
+    </table>
+
+    <table name="ClearVarsOnStart" initial-records-count="0">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="col1" type="string" size="20"/>
+      <column name="col2" type="string"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="col1" value="col1-1"/>
+          <field name="col2" value="col2-1"/>
+        </record>
+        <record>
+          <field name="id" value="2"/>
+          <field name="col1" value="col1-2"/>
+          <field name="col2" value="col2-2"/>
+        </record>
+        <record>
+          <field name="id" value="3"/>
+          <field name="col1" value="col1-3"/>
+          <field name="col2" value="col2-3"/>
+        </record>
+        <record>
+          <field name="id" value="4"/>
+          <field name="col1" value="col1-4"/>
+          <field name="col2" value="col2-4"/>
+        </record>
+        <record>
+          <field name="id" value="5"/>
+          <field name="col1" value="col1-5"/>
+          <field name="col2" value="col2-5"/>
+        </record>
+        <record>
+          <field name="id" value="6"/>
+          <field name="col1" value="col1-6"/>
+          <field name="col2" value="col2-6"/>
+        </record>
+        <record>
+          <field name="id" value="7"/>
+          <field name="col1" value="col1-7"/>
+          <field name="col2" value="col2-7"/>
+        </record>
+        <record>
+          <field name="id" value="8"/>
+          <field name="col1" value="col1-8"/>
+          <field name="col2" value="col2-8"/>
+        </record>
+      </data>
+    </table>
+
+    <table name="TestBreak">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="$Break" type="string" size="1"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="$Break" value="1"/>
+        </record>
+      </data>
+    </table>
+
+    <table name="TestNumberFormat">
+      <column name="id" auto-increment="yes" type="integer"/>
+      <column name="col1" type="integer"/>
+      <column name="col2" type="float"/>
+      <data>
+        <record>
+          <field name="id" value="1"/>
+          <field name="col1" value="1234"/>
+          <field name="col2" value="123456789.1234"/>
+        </record>
+        <record>
+          <field name="id" value="2"/>
+          <field name="col1" value="1234"/>
+          <field name="col2" value="4444.8888"/>
+        </record>
+      </data>
+    </table>
+
+    <table name="ScheduledClearVars" initial-records-count="0">
+      <column name="date" auto-increment="yes" type="date" date-format="yyyyMMdd HH:mm:ss.SSS"/>
+      <column name="col1" type="string" size="20"/>
+      <data></data>
+    </table>
+
+  </tables>
+</mock-database>
