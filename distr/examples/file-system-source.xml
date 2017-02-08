@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config>
+
+  <logging dir="conf-dexDeal-log"> ... </logging>
+
+  <db-profiles>
+
+<!--
+  file-system data source supports the following requests:
+    list <dir> [reg-exp-template]
+      where 
+        <dir> (mandatory) - directory path
+        [reg-exp-template] (optional) - regular expression (see java 1.4 (or later) java.util.regex.Pattern doc) 
+          specifying file name filter. Only files with matching name are selected. 
+          If not specified then all files are listed.
+      returns result set containing directory list with the structure:
+        AbsolutePath - VARCHAR(512) - absolute file path and name
+        FileName - VARCHAR(256) - file name
+        ModificationDate - Date - last modified date
+        Size - Long - file size
+    
+    file-exist <file-template>
+      returns result set containing one row with field FileExist with value "1" if file exists and "0" otherwise
+
+    host-name
+      returns result set containing one row with field HostName - host name of computer that runs courier
+
+    rfc822 <address> <severity>
+      checks if string is RFC822 mail address
+        where
+          <address> - string to check
+          <severity> - 'strict' or 'light'. Determines if the check is a Strict RFC822 check. 
+                     If 'light' detailed syntax of the address isn't checked and it will allow addresses without domain name.
+        Example:
+          rfc822 strict 'Stepochkin Alexander<AStepochkin@example.ru>'
+          rfc822 strict [%(string) MailAddress]
+          rfc822 light [%(string) MailAddress]
+      returns result set containing directory list with the structure:
+        AddrValid - '1' for valid address otherwise '0'
+        AddrError - NULL for valid address otherwise error cause
+        Personal  - address personal for valid address otherwise NULL
+        LocalName - address local name for valid address otherwise NULL
+        Domain    - address domain for valid address otherwise NULL
+
+  and the following operations:
+    rename <file-template1> <file-template2>
+      where 
+        <file-template1> - original file
+        <file-template2> - target file
+      renames file <file-template1> to <file-template2>
+    rename-bulk <from-dir-template> <to-dir-template> <file-regexp-template>
+      where 
+        <from-dir-template> - original dir
+        <to-dir-template> - target dir
+        <file-regexp-template> - (optional) regular expresion selecting file to move. If absent then - all files.
+      renames file <file-template1> to <file-template2>
+    single-delete <file-template>
+      where 
+        <file-template> - file to delete
+      deletes file <file-template>
+    delete <file-template>
+      where 
+        <file-template> (one or more) - usual DOS asterisk-based file template
+      deletes files matching templates
+    exec <launch-string>
+      executes <launch-string>
+    check
+      does nothing
+-->
+    <database
+      name="file-system-1"
+      driver="ru.rd.courier.jdbc.FileSystem.FileSystemDriver"
+      url="jdbc:rd:file-system"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="check"
+    >
+      <param name="show-exec-output">yes</param>
+      <param name="ignore-error-stream">no</param>
+    </database>
+    
+    <receiver
+      name="alex-mail"
+      type="mail"
+      smtp-host="ns.example.ru"
+      to="Alexander_Stepochkin@example.ru"
+      from="CourierSystem@example.ru"
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="100"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="100"
+      check-interval-min="100"
+    />
+  </db-profiles>
+
+  <source-profiles>
+
+    <profile name="file-system-src" wait-timeout="120">
+      <description>file-system-src</description>
+      <rules>
+        <rule name="base" type="all">
+          <description>base</description>
+          <transform>
+            <data-query>list C:\Projects\IT\3D_Projects\Courier\test\attach-files ^.*\.ico$</data-query>
+            <after>
+              <operation>delete C:\Projects\IT\3D_Projects\Courier\test\attach-files\*.ico</operation>
+            </after>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+
+  </source-profiles>
+
+  <target-profiles>
+
+    <profile name="file-mail-tgt" wait-timeout="120">
+      <description></description>
+      <portion records="10">
+        <before><![CDATA[
+<header>Courier ({%courier-host}): [%!now dd.MM.yyyy] Files --> </header>
+<body><![CDATA[
+<html>
+<body>
+<center>
+<font size="5" color="#008000">Files</font>
+<br><br>
+<table border="1" cellspacing="0" cellpadding="4">
+<tr>
+ <td bgcolor="#E0E0E0" align="center"><b>File</b></td>
+</tr>
+]]]]>&gt;<![CDATA[</body>
+        ]]></before>
+        <after><![CDATA[
+<header> -- [%$portion-size] -- [%$rs-counter] -- </header>
+<body><![CDATA[
+</table>
+</center>
+</body>
+</html>
+]]]]>&gt;<![CDATA[</body>
+        ]]></after>
+      </portion>
+      <rules>
+        <rule>
+          <operation><![CDATA[
+<header> [%AbsolutePath] </header>
+<body><![CDATA[
+<tr>
+ <td>[%AbsolutePath]</td>
+</tr>
+]]]]>&gt;<![CDATA[</body>
+<attachment file="[%AbsolutePath]"/>
+          ]]></operation>
+        </rule>
+      </rules>
+    </profile>
+
+  </target-profiles>
+
+  <pipelines>
+
+    <pipeline name="file-mail" 
+      source-db="file-system-1" source-name="file-system-src" 
+      target-db="alex-mail" target-name="file-mail-tgt"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>file-mail</description>
+      <base-process source-rule="base" timeout="600000"/>
+    </pipeline>
+
+  </pipelines>
+</pipelines-config>

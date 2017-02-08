@@ -1,0 +1,42 @@
+template := (simple-text | function)*
+quoted-template := (quoted-text | function)*
+function := '[%' ('(' format ')' blanks)? not-formatted-function ']'
+format := 'string' 
+        | 'datetime' 
+        | 'date-format' (blanks quoted-text)? ; parameter is a java simple date format
+        | 'number' (blanks quoted-text quoted-text? quoted-text?)?      ; 1-parameter is a java decimal format 
+                                                                          2-parameter decimal separator 
+                                                                          3-parameter grouping separator
+        | 'replace' (blanks char param)+      ; param is any string
+        | 'cdata'                             ; replace 
+                                              ; '"' --> "&quot;" 
+                                              ; '<' --> "&lt;" 
+                                              ; '>' --> "&gt;"
+                                              ; '&' --> "&amp;"
+        | 'cdata2'                            ; replace 
+                                              ; '"' --> "&amp;&quot;" 
+                                              ; '<' --> "&amp;&lt;" 
+                                              ; '>' --> "&amp;&gt;"
+                                              ; '&' --> "&amp;&amp;"
+        | 'surround' (blanks quoted-text)? (blanks quoted-text)?  ; first parameter is a prefix, second parameter is a suffix
+not-formatted-function := ident | '!' named-function
+named-function := 'var' blanks ident
+                | 'sys-var' blanks ident  ; returns java system var with name contained in ident
+                | 'env-var' blanks ident  ; returns OS environment var with name contained in ident
+                | 'map' (blanks (("'" ident "'") | 'exists' | 'null') imbedded-template)*
+                | 'if-var' blanks ident blanks imbedded-template (blanks 'else' imbedded-template)
+                | 'if-value' blanks ident blanks imbedded-template (blanks 'else' imbedded-template)  
+                  ; if imbedded-template is not existing var or template that is null than empty string otherwise template itself
+                | 'now' blanks <java simple date format>
+                | 'var-by-name' blanks ident  ; returns var with name contained in ident
+                | 'substr' blanks number blanks number blanks imbedded-template  ; imbedded-template.substing(par1, par2)
+                | 'replace' blanks imbedded-template blanks imbedded-template blanks imbedded-template  ; [%!replace text reg-exp replacement]
+digit := '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'
+number := digit+
+ident := <any char except blank>
+imbedded-template := ident | ("'" quoted-template "'")
+simple-text := <text without (<any char except '['> '[%') >
+quoted-text := <text without ("'" <any char except "'">) >
+param := ident | quoted-text
+blank := ' ' | %x09 | %x0A | %x0D
+blanks := blank*

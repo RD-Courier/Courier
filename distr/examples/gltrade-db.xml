@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging dir="conf-test-std-update-logs"> ... </logging>
+
+  <db-profiles>
+    <!--
+    language sintax:
+      request := 'check'  ; returns empty result set. Supports pool check operation.
+        | 'last-file'     ; returns one record result set with one field 'AbsolutePath' 
+                          ;   containing last used file name (or NULL if there was no file read)
+    -->
+    
+    <!-- parameters inside url -->
+    <database
+      name="???"
+      driver="ru.rd.courier.jdbc.csv.CsvDriver"
+      url="jdbc:rd:gltrade:DirName=gltrade FilePrefix=Serveur_ StringBracket=' Separator=, NeedToTrim=true NullWord=EMPTY"
+      username="" password=""
+      initial-capacity="1"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="0"
+      check-sql="check"
+    />
+
+    <!-- parameters as 'param' tags -->
+    <database
+      name="gltrade"
+      driver="ru.rd.courier.jdbc.csv.CsvDriver"
+      url="jdbc:rd:gltrade"
+      username="" password=""
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+      check-sql="check"
+    >
+      <param name="DirName" value="C:\Projects\IT\3D_Projects\Courier\test\gltrade"/>  <!-- mandatory - directory for files -->
+      <param name="FilePrefix" value="Serveur_"/>  <!-- mandatory - file has form: <FilePrefix><date><FilePostfix> -->
+      <param name="FilePostfix" value=".txt"/>     <!-- optional - file has form: <FilePrefix><date><FilePostfix> -->
+      <param name="DateFormat" value="yyyyMMdd"/>  <!-- optional - default=yyyyMMdd - file has form: <FilePrefix><date><FilePostfix> -->
+      <param name="HoldFileUntilNew" value="no"/>  <!-- optional - reads previous file data untill new file appears -->
+      <param name="FullReadEvery" value="0"/>      <!-- optional - read file from the beginning every specified request. 
+                                                       0 - means not to take this parameter into consideration -->
+      <param name="FullReadInterval" value=""/>    <!-- optional - read file from the beginning if time from the previous full read more then specified interval 
+                                                       format: 
+                                                         <number>     - <number> milliseconds
+                                                         <number>ms   - <number> milliseconds
+                                                         <number>s    - <number> seconds
+                                                         <number>m    - <number> minutes
+                                                         <number>h    - <number> hours
+                                                         <number>d    - <number> days
+                                                    -->
+      <param name="LineSplitter" value="csv"/>     <!-- optional - specifies line parser type. Possible values:
+                                                      csv         - "comma separated values" - values separated by <separator>, 
+                                                                    each value can be enclosed by <bracket> with no or doubled bracket inside value.
+                                                      gl-trage    - GL Trage customized - values separated by <separator>, 
+                                                                    each value can be enclosed by <bracket> with no or doubled bracket inside value.
+                                                                    In this case end of value can be marked by end of line.
+                                                   -->
+      <param name="StringBracket" value="'"/>      <!-- optional - allows to specify brackets for fields -->
+      <param name="Separator" value=","/>          <!-- mandatory - fields separator -->
+      <param name="NeedToTrim" value="true"/>      <!-- optional - whether to trim fields -->
+      <param name="NullWord" value="EMPTY"/>       <!-- optional - string to perceive as NULL string -->
+      <param name="LoggerName" value="ru.rd.courier"/>  <!-- optional - name of logger to connect to -->
+      <param name="charset" value="windows-1251"/> <!-- optional - text charset -->
+      <param name="HeaderRow" value="2"/>          <!-- optional - header row number (see TitleVarName description) -->
+      <param name="TitleVarName" value="title"/>   <!-- mandatory if HeaderRow specified - name of variable that contains lines before header row -->
+      <param name="AddAbsentAsNull" value="yes"/>  <!-- optional - sets absent fields as NULL -->
+      <param name="SkipTemplate" value="\*{10}"/>  <!-- optional - template of lines to skip -->
+      <param name="NumbericColumnTitles" value="yes"/>  <!-- optional - (yes | no) - gives column titles numberic (beginning with 0) names in form: <ColumnTitlePrefix><NUMBER> -->
+      <param name="ColumnTitlePrefix" value="col"/>  <!-- optional - (string) - see NumbericColumnTitles description -->
+
+      
+
+    </database>
+
+</db-profiles>
+
+  <source-profiles> ... </source-profiles>
+  <target-profiles> ... </target-profiles>
+  <pipelines> ... </pipelines>
+</pipelines-config>

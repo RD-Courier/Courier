@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging> ... </logging>
+
+  <db-profiles>
+    <!--
+    Common attributes:
+      default-timeout - (optional) timeout in seconds for command transfer. No timeout if ommited.
+      data-timeout - (optional) timeout in seconds for data transfer. No timeout if ommited.
+      host - (mandatory) remote host
+      dir - remote directory
+      encoding - (optional, default = cp1251) data encoding
+      overwrite - (optional) default=yes - overwrite remote file if it exists
+      overwrite-warning - (optional) default=no - issue warning on overwriting remote file
+
+
+    Can be in two forms:
+      1 - File name is formed from atributes
+        Attributes:
+          date-format - (optional) default=yyyyMMdd-HHmmssSSS - part of file name (see below)
+      
+        file name=<prefix><local-host-name>-<date formatted according date-format>-<random 8 digit number><postfix>
+
+      2 - File name is formed in operation template
+
+    -->
+    <receiver
+      type="ftp"
+      name="TCondor_ftp"
+      default-timeout="60"
+      data-timeout="60"
+      host="kplus"
+      username=""
+      password=""
+      encoding="windows-1251"
+      overwrite="yes"
+      overwrite-warning="no"
+      prefix="split-dexDeal-"
+      postfix=".data"
+      date-format="yyyyMMdd-HHmmssSSS"
+      ascii="yes"
+      passive="no"
+      dir="/condor/Error/Courier"
+    />
+
+    <!--
+    Second form:
+      File name specified in operation template first line beginning with "file-name="
+      Please note that in target profile you'd better specify file name in portion before tag (see below)
+    -->
+    <receiver
+      type="ftp"
+      name="condor-ftp"
+      default-timeout="60"
+      data-timeout="60"
+      host="kplus"
+      username=""
+      password=""
+      encoding="windows-1251"
+      dir="/condor/test"
+      filename-at-first-line="yes"
+    />
+
+    <!--
+      list-parser - (optional. default=default parser) LIST command file information parser.
+        One of the following: UNIX, EUNIX, NT, VMS
+        Usually for Unix default parser suffice.
+        For MS FTP Server please try to use NT.
+    -->
+    <source
+      type="ftp"
+      name="TestFTP"
+
+      host="MX-JAVA"
+      username="XXX"
+      password="YYY"
+      list-parser=""
+    >
+      <parser> ... </parser>
+    </source>
+    <!--
+    list - lists folder files
+      Syntax: list <PATH> [REGEX-FILTER]
+        PATH - (mandatory) folder path
+        REGEX-FILTER - (optional) regular expresion to filter files
+      ResultSet:  
+        file - (deprecated) file name
+        FileName - file name
+        FileSize - file size
+        FileTime - last modification time
+    get - downloads file into file system
+      Syntax: get <PATH> file=<LocalFilePath>
+        PATH - (mandatory) remote file to download
+        LocalFilePath - (mandatory) local file to store
+      ResultSet:  
+        file - local file path
+      Syntax: get <PATH> var-name=<VarName>
+        PATH - (mandatory) remote file to download
+        VarName - (mandatory) context variable to store file content
+      ResultSet:  
+        VarName - context variable name
+    remove - removes remote file
+      Syntax: remove <PATH>
+        PATH - (mandatory) remote file path to remove
+      ResultSet:  
+    get-parse - downloads file and parses it. Requires parser configuration in "parser" tag,
+                which is the same as for stream source so please refer to stream source documentation.
+      Syntax: get-parse <PATH>
+        PATH - (mandatory) file to download
+      ResultSet: depends on parser
+    -->
+</db-profiles>
+
+  <source-profiles> ... </source-profiles>
+
+  <target-profiles>
+    <profile name="ftp-target" wait-timeout="120">
+      <description>chance-tgt</description>
+      <portion records="10">
+        <!-- &#13; at the end of tag is a carrage return character that can be replaced by explicit carrage return -->
+        <before>file-name=testfile-[%$pipeline]-[%(date-format 'yyyyMMdd-HHmmssSSS')!now].txt&#13;</before>
+      </portion>
+      <rules>
+        <rule>
+          <operation>[%col1]	[%col2]</operation>
+        </rule>
+      </rules>
+    </profile>
+  </target-profiles>
+
+  <pipelines> ... </pipelines>
+</pipelines-config>

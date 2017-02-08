@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging dir="conf-dexDeal-log">
+    <transfer-data
+      pipelines-dir="pipelines"
+      date-format="yyyy-MM-dd"
+      file-name-prefix="data-"
+      file-name-postfix=".log"
+      store-days="30"
+      max-size-megabytes="100"
+      delete-unknown-files="no"
+    />
+
+    <!--
+    Possible log levels: all, info, error, off
+    Possible handler types: file-by-days, console, mail
+    -->
+
+    <logger name="" level="all">
+      <handler type="file-by-days" level="all">
+        <param name="dir" value=""></param>
+        <param name="date-format" value="yyyy-MM-dd"></param>
+        <param name="file-name-prefix" value=""></param>
+        <param name="file-name-postfix" value=".log"></param>
+        <param name="days" value="2"></param>
+        <param name="delete-unknown-files" value="no"></param>
+        <param name="max-size-megabytes" value="100"/>
+      </handler>
+      <handler type="console" level="all"/>
+      <handler type="mail" level="error">
+        <param name="subject-template" value="Courier [%app-path] [%host] [%level] **** [%message]"></param>
+        <param name="from" value="CourierSystem@example.ru"></param>
+        <param name="to" value="Alexander_Stepochkin@example.ru"></param>
+        <param name="smtp-host" value="magician.example.ru"></param>
+        <param name="publish-stack-trace" value="yes"></param>
+        <param name="same-message-interval-min" value="-1"/>
+        <param name="same-message-buffer-size" value="0"/>
+        <param name="connect-timeout" value="60000"/>
+        <param name="send-timeout" value="20000"/>
+      </handler>
+
+      <logger name="sys-db" level="info">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="sysdb"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+
+      <logger name="pool" level="all">
+        <handler type="file-by-days" level="all">
+          <param name="dir" value="pool"></param>
+          <param name="date-format" value="yyyy-MM-dd"></param>
+          <param name="file-name-prefix" value=""></param>
+          <param name="file-name-postfix" value=".log"></param>
+          <param name="days" value="2"></param>
+        </handler>
+      </logger>
+    </logger>
+  </logging>
+
+  <db-profiles>
+  ...
+  </db-profiles>
+
+  <source-profiles>
+  ...
+  </source-profiles>
+
+  <target-profiles>
+  ...
+  </target-profiles>
+
+  <pipelines>
+  ...
+  </pipelines>
+</pipelines-config>

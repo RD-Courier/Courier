@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<!--
+All values in this file are case-insensitive.
+
+After editing encrypt it using:
+Encrypt.cmd <ReadableFile> <EncryptedFile>
+Then deploy encrypted file in a proper place and reference it using
+attribute accounts-file in usual Courier config file or attribute common-accounts-file in common config file (see general-main.xml).
+-->
+<accounts>
+  <!--
+  Specifies account for pool with name = <code>
+  -->
+  <account code="DataExpress" username="Basel" password="???"/>
+  <account code="URANUS" username="Basel" password="???"/>
+  <account code="TKondor" username="Reader" password="???"/>
+  
+  <!--
+  Specifies account for pool with host = <host>
+  -->
+  <account host="HOST1" username="user123" password="???"/>
+  
+  <!--
+  Specifies account for pool with host = <host> and either type = <type> or pool name = <code>
+  Types:
+    databases = 'db'
+    ftp servers = 'ftp'
+    ssh servers = 'ssh'
+  -->
+  <account host="127.0.0.1">
+    <account type="db" username="dbuser" password="dbpwd"/>
+    <account type="ftp" username="ftpuser" password="ftppwd"/>
+    <account type="ssh" username="sshuser" password="sshpwd"/>
+    <account code="code1" username="user1" password="123"/>
+    <account code="code2" username="user2" password="456"/>
+  </account>
+  <account host="MX-JAVA-2">
+    <account type="ftp" username="murex" password="???"/>
+    <account type="ssh" username="murex" password="???"/>
+  </account>
+</accounts>

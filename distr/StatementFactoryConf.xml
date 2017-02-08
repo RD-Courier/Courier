@@ -1,0 +1,239 @@
+<config>
+  <tag name="stock" type="stock"/>
+
+  <tag name="string" type="primitive">
+    <param name="class" value="java.lang.String"/>
+    <param name="signature" value="java.lang.String"/>
+  </tag>
+  <tag name="int" type="primitive">
+    <param name="class" value="java.lang.Integer"/>
+    <param name="signature" value="int"/>
+  </tag>
+  <tag name="boolean" type="primitive">
+    <param name="class" value="java.lang.Boolean"/>
+    <param name="signature" value="boolean"/>
+  </tag>
+
+  <tag name="array" type="array">
+    <param name="signature" value="[Ljava.lang.Object;"/>
+  </tag>
+  <tag name="list" type="list">
+    <param name="signature" value="java.util.List"/>
+  </tag>
+  <tag name="map" type="map">
+    <param name="signature" value="java.util.Map"/>
+  </tag>
+  <tag name="node" type="node">
+    <param name="signature" value="org.w3c.dom.Node"/>
+  </tag>
+
+  <tag name="nothing" type="constructor">
+    <param name="class" value="*.statements.Nothing"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="block" type="constructor">
+    <param name="class" value="*.statements.Block"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="break" type="constructor">
+    <param name="class" value="*.statements.Break"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="raise" type="constructor">
+    <param name="class" value="*.statements.RaiseError"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="catch" type="constructor">
+    <param name="class" value="*.statements.Catch"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="finally" type="constructor">
+    <param name="class" value="*.statements.Finally"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="if" type="constructor">
+    <param name="class" value="*.statements.If"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="case" type="constructor">
+    <param name="class" value="*.statements.Case"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>                            
+  <tag name="while" type="constructor">
+    <param name="class" value="*.statements.While"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="set-var" type="constructor">
+    <param name="class" value="*.statements.SetVarString"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="set-template" type="constructor">
+    <param name="class" value="*.statements.SetVarTemplate"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="set-dyn-template" type="constructor">
+    <param name="class" value="*.statements.SetVarTemplateDyn"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="inc-var" type="constructor">
+    <param name="class" value="*.statements.Inc"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="template" type="constructor">
+    <param name="class" value="*.statements.VarTemplate"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="operation" type="constructor">
+    <param name="class" value="*.statements.Operation"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="flush" type="constructor">
+    <param name="class" value="*.statements.Flush"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="rs-loop" type="constructor">
+    <param name="class" value="*.statements.CtxResultSetLoop"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="var-query" type="constructor">
+    <param name="class" value="*.statements.VarQuery"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="map-var-query" type="constructor">
+    <param name="class" value="*.statements.MapVarQuery"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="query-xml" type="constructor">
+    <param name="class" value="*.statements.QueryXml"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="map-query-xml" type="constructor">
+    <param name="class" value="*.statements.MapQueryXml"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="target-buffer" type="constructor">
+    <param name="class" value="*.statements.TargetBufferEx"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="inc-records-count" type="constructor">
+    <param name="class" value="*.statements.IncRecordsCount"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="send-mail" type="constructor">
+    <param name="class" value="*.statements.SendMail"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="log-message" type="constructor">
+    <param name="class" value="*.statements.LogMessage"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="log-data" type="constructor">
+    <param name="class" value="*.statements.LogData"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="log" type="constructor">
+    <param name="class" value="*.statements.LogMessage"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="warning" type="constructor">
+    <param name="class" value="*.statements.WarnMessage"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="object-stmt-call" type="constructor">
+    <param name="class" value="*.statements.ObjectStatementCaller"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="procedure-call" type="constructor">
+    <param name="class" value="*.statements.ProcedureCaller"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="launch-process" type="constructor">
+    <param name="class" value="*.statements.LaunchProcess"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="stop-process" type="constructor">
+    <param name="class" value="*.statements.Stop"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="exec-os-process" type="constructor">
+    <param name="class" value="*.statements.ExecOsProcess"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  <tag name="exec-ssh-process" type="constructor">
+    <param name="class" value="*.statements.ExecSshProcess"/>
+    <param name="signature" value="*.ScriptStatement"/>
+  </tag>
+  
+
+  <tag name="null-string" type="constructor">
+    <param name="class" value="*.expressions.string.Null"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+  <tag name="var-value" type="constructor">
+    <param name="class" value="*.expressions.string.Var"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+  <tag name="from-db" type="constructor">
+    <param name="class" value="*.expressions.string.FromDb"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+  <tag name="string-const" type="constructor">
+    <param name="class" value="*.expressions.string.Const"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+<!--
+  <tag name="template" type="constructor">
+    <param name="class" value="*.expressions.string.Template"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+-->
+  <tag name="template" type="constructor">
+    <param name="class" value="*.expressions.string.PreparedTemplateExpr"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+  <tag name="map-expr" type="constructor">
+    <param name="class" value="*.expressions.string.Map"/>
+    <param name="signature" value="*.ScriptExpression"/>
+  </tag>
+
+  <tag name="true" type="constructor">
+    <param name="class" value="*.expressions.bool.True"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="not" type="constructor">
+    <param name="class" value="*.expressions.bool.Not"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="test-var" type="constructor">
+    <param name="class" value="*.expressions.bool.TestVar"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="has-var" type="constructor">
+    <param name="class" value="*.expressions.bool.HasVar"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="comp-two-expr" type="constructor">
+    <param name="class" value="*.expressions.bool.CompTwoExpr"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="int-greater-const" type="constructor">
+    <param name="class" value="*.expressions.bool.IntGreaterConst"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="int-greater" type="constructor">
+    <param name="class" value="*.expressions.bool.IntGreater"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="greater" type="constructor">
+    <param name="class" value="*.expressions.bool.Greater"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="regex" type="constructor">
+    <param name="class" value="*.expressions.bool.RegExpMatch"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+  <tag name="dyn-regex" type="constructor">
+    <param name="class" value="*.expressions.bool.RegExpDynMatch"/>
+    <param name="signature" value="*.BoolExpression"/>
+  </tag>
+</config>

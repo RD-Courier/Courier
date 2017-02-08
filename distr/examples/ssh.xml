@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging> ... </logging>
+
+  <db-profiles>
+    <!--
+    Common attributes:
+      host - (mandatory) remote host
+      port - (optional) default=22
+      username - (mandatory)
+      password - (mandatory)
+
+      encoding - (mandatory) data encoding
+      overwrite - (optional) default=yes - overwrite remote file if it exists
+      overwrite-warning - (optional) default=no - issue warning on overwriting remote file
+
+      dir - (mandatory) remote directory
+      prefix - (optional) Required for first form (see below)
+      postfix - (optional) Required for first form (see below)
+      date-format - (optional) Required for first form (see below)
+
+    Can be in two forms:
+      1 - File name is formed from atributes
+      2 - File name is formed in operation template if filename-at-first-line="yes"
+    -->
+
+    <!--
+    First form:
+      Attributes:
+        date-format - (optional) default=yyyyMMdd-HHmmssSSS - part of file name (see below)
+      
+      file name=<prefix><local-host-name>-<date formatted according date-format>-<random 8 digit number><postfix>
+    -->
+    <receiver
+      type="sftp"
+      name="TestSFTP"
+
+      host="MX-JAVA"
+      username="XXX"
+      password="YYY"
+      
+      encoding="windows-1251"
+      overwrite="yes"
+      overwrite-warning="no"
+      
+      dir="/condor/Error/Courier"
+      prefix="split-dexDeal-"
+      postfix=".data"
+      date-format="yyyyMMdd-HHmmssSSS"
+    />
+
+    <!--
+    Second form:
+      File name specified in operation template first line beginning with "file-name="
+      Please note that in target profile you'd better specify file name in portion before tag (see below)
+    -->
+    <receiver
+      type="sftp"
+      name="TestSFTP2"
+
+      host="MX-JAVA"
+      username="XXX"
+      password="YYY"
+
+      encoding="windows-1251"
+      overwrite="yes"
+      overwrite-warning="no"
+
+      dir="/condor/test"
+      filename-at-first-line="yes"
+    />
+
+    <source
+      type="sftp"
+      name="TestSFTP3"
+
+      host="MX-JAVA"
+      username="XXX"
+      password="YYY"
+    >
+      <parser> ... </parser>
+    </source>
+    <!--
+    list - lists folder files
+      Syntax: list <PATH> [REGEX-FILTER]
+        PATH - (mandatory) folder path
+        REGEX-FILTER - (optional) regular expresion to filter files
+      ResultSet:  
+        File - full file path
+        FileName - file name
+    get - downloads file into file system
+      Syntax: get <PATH> file=<LocalFilePath>
+        PATH - (mandatory) remote file to download
+        LocalFilePath - (mandatory) local file to store
+      ResultSet:  
+        file - local file path
+      Syntax: get <PATH> var-name=<VarName>
+        PATH - (mandatory) remote file to download
+        VarName - (mandatory) context variable to store file content
+      ResultSet:  
+        VarName - context variable name
+    put - uploads file
+      Syntax: put from-file=<LocalFile> to-file=<RemoteFile>
+        LocalFile - (mandatory) file to upload
+        RemoteFile - (mandatory) remote file path
+      ResultSet:  
+    remove - removes remote file
+      Syntax: remove <PATH>
+        PATH - (mandatory) remote file path to remove
+      ResultSet:  
+    get-parse - downloads file and parses it. Requires parser configuration in "parser" tag,
+                which is the same as for stream source so please refer to stream source documentation.
+      Syntax: get-parse <PATH>
+        PATH - (mandatory) file to download
+      ResultSet: depends on parser
+    -->
+
+</db-profiles>
+
+  <source-profiles>
+  
+    <receiver
+      type="sftp"
+      name="TestSFTP2"
+
+      host="MX-JAVA"
+      username="XXX"
+      password="YYY"
+
+      encoding="windows-1251"
+      overwrite="yes"
+      overwrite-warning="no"
+
+      dir="/condor/test"
+      filename-at-first-line="yes"
+    />
+  
+    <source
+      type="sftp"
+      name="TestSFTP3"
+
+      host="MX-JAVA"
+      username="XXX"
+      password="YYY"
+    >
+      <parser type="csv" separator=",">
+        <header type="csv"/>
+      </parser>
+    </source>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="get-parse-src" wait-timeout="30">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query>get-parse /export/home/myuser/CsvFile.txt</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+    
+    <profile name="list-src" wait-timeout="30">
+      <description/>
+      <rules>
+        <rule name="main" type="all">
+          <transform>
+            <data-query>list /export/home/myuser</data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+    
+    <profile name="ftp-target" wait-timeout="120">
+      <description>chance-tgt</description>
+      <portion records="10">
+        <!-- &#10; at the end of tag is a carrage return character that can be replaced by explicit carrage return -->
+        <before>file-name=testfile-[%$pipeline]-[%(date-format 'yyyyMMdd-HHmmssSSS')!now].txt&#10;</before>
+      </portion>
+      <rules>
+        <rule>
+          <operation>[%col1]	[%col2]</operation>
+        </rule>
+      </rules>
+    </profile>
+  </target-profiles>
+
+  <pipelines> ... </pipelines>
+</pipelines-config>

@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging dir="conf-test-std-update-logs"> ... </logging>
+
+  <!--
+    jdbc-login-timeout-sec="30"      - (optional, default 30 sec) for JDBC (database tag) only !!! Timeout in seconds for JDBC Driver Manager to create connection. The Driver Manager can only create one connection at a time.
+    cancel-auto-commit - (optional, default = no) cancels auto-commit mode. 
+                         At the end of an operation it commits a transaction if there was no error otherwise it rollbacks the transaction.
+  -->
+  <db-profiles>
+    <!--
+    initial-capacity="0"             - initial pool size
+    increment-capacity="1"           - amount of connections to allocate within one expantion process
+    max-capacity="-1"                - max pool size (if <= 0 then unlimited size)
+    shrink-interval-min="1"          - interval to launch process to remove invalid or expired connections (if <= 0 then shrink disabled)
+    shrink-capacity="10"             - max quantity of object to return within one shrink process
+    shrink-obsolete-interval-min="1" - if connection unused more than that period it will be removed from pool
+    expire-period-min="300"          - connection expiration period (if connection resides in pool more than that period it will be removed from pool)
+    check-interval-min="100"         - interval to launch process to check connections (if <= 0 then check disabled)
+    check-sql="SELECT 1"             - request to check connection
+    allocate-timeout="60s"           - timeout to connect or disconnect
+    check-timeout="15s"              - timeout to check connection
+    check-wait-timeout="10"          - for JDBC (database tag) only !!! Timeout in seconds to wait for check request completion.
+    max-consecutive-errors="-1"      - for JDBC (database tag) only !!! Discard connection if there was n transfer process in a row having had at least one error requesting database during execution.
+    -->
+    
+    <database
+      name="DataExpress"
+      driver="com.microsoft.jdbc.sqlserver.SQLServerDriver"
+      url="jdbc:microsoft:sqlserver://CRM-AM2;DatabaseName=DataExpress"
+      
+      username="DataExpress" password="????"
+      initial-capacity="0"
+      increment-capacity="1"
+      max-capacity="-1"
+      shrink-interval-min="30"
+      shrink-capacity="-1"
+      shrink-obsolete-interval-min="30"
+      check-interval-min="100"
+      check-sql="SELECT 1"
+      expire-interval-min="5"
+      expire-count="-1"
+      expire-period-min="420"
+      allocate-timeout="60s"    
+      check-timeout="15s"
+      check-wait-timeout="10" 
+    />
+
+    <!-- 
+      Mandatory:
+        host - host
+        db - default database
+        username - user name
+        password - password
+
+      Optional:
+        data-source
+        description
+        login-timeout
+        network-protocol
+        port
+        resource-manager-name
+        resource-manager-type
+        cancel-auto-commit - (optional, default = no) cancels auto-commit mode. 
+                             At the end of an operation it commits a transaction if there was no error otherwise it rollbacks the transaction.
+        * other database and pool specific options (see previous example)
+    -->
+    <sybase 
+      name="TestSybase" 
+      host="ASE-FIN" port="6000" db="HONEY"
+      username="user1" password="????"
+    />
+
+    <!-- 
+      Mandatory:
+        host - host
+        db - default database
+        username - user name
+        password - password
+
+      Optional:
+        batch-performance-workaround
+        data-source
+        description
+        embedded
+        host-process
+        login-timeout
+        port
+        role-name
+        select-method
+        send-string-parameters-as-unicode
+        server
+        spy-attributes
+        cancel-auto-commit - (optional, default = no) cancels auto-commit mode. 
+                             At the end of an operation it commits a transaction if there was no error otherwise it rollbacks the transaction.
+        * other database and pool specific options (see previous example)
+    -->
+    <mssql
+      name="TestMssql"
+      host="ARENA" db="Courier"
+      username="user1" password="????"
+    />
+
+
+    <!-- 
+      Mandatory:
+        host - host
+        db - default database
+        username - user name
+        password - password
+
+      Optional:
+        connection-cache-name
+        connection-caching-enabled
+        data-source
+        description
+        driver-type
+        explicit-caching-enabled
+        fast-connection-failover-enabled
+        implicit-caching-enabled
+        login-timeout
+        network-protocol
+        ons-configuration
+        port
+        service-name
+        server
+        tns-entry
+        url
+    -->
+    <source 
+      type="oracle"
+      name="TestOracle" 
+      host="OHOST" port="6000"
+      service-name="mocogony"
+      db="HONEY"
+      username="user1" password="????"
+    />
+
+    <!--
+    Oracle connections to work with stored procedures returning result set.
+    To get result set from procedure "CALL" statement should be first in a batch.
+    And specify output cursor parameter as "?" character. For example:
+    CALL TEST.TEST_PKG.TEST_PROC(?, 2222)
+    -->
+    <source 
+      type="oracle-sp"
+      name="TestOracle" 
+      host="OHOST" port="6000"
+      db="HONEY"
+      username="user1" password="????"
+    />
+
+   
+
+<!--Excel ODBC Example-->
+    <database	
+      name="XLS-Example"
+      driver="sun.jdbc.odbc.JdbcOdbcDriver"
+      url="jdbc:odbc:Driver={Microsoft Excel Driver (*.xls)};DBQ=d:\MSOffice\Reuters_page.xls;IMEX=1;ReadOnly=True"
+      username="" password=""
+      initial-capacity="0"
+      check-wait-timeout="0"
+      check-sql="SELECT 1"
+    />
+
+<!--Access ODBC Example-->
+    <database	
+      name="MDB-Example"
+      driver="sun.jdbc.odbc.JdbcOdbcDriver"
+      url="jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ=C:/data/month.MDB"
+      username="" password=""
+      initial-capacity="0"
+      check-wait-timeout="0"
+      check-sql="SELECT 1"
+    />
+
+    <receiver
+      type="file"
+      name="TCondor-File"
+      
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+
+      encoding="windows-1251"
+
+      prefix="split-dexDeal-"
+      postfix=".data"
+      date-format="yyyyMMdd-hhmmssSSS"
+      dir="C:/Projects/IT/3D_Projects/Courier/test2/temp"
+      filename-at-first-line="no"
+
+      overwrite="yes"
+      overwrite-warning="no"
+      append="no"
+    />
+
+    <receiver
+      type="ftp"
+      name="TCondor_ftp"
+
+      initial-capacity="0"
+      increment-capacity="1"
+      shrink-interval-min="1"
+      shrink-capacity="10"
+      shrink-obsolete-interval-min="1"
+      check-interval-min="100"
+
+      host="kplus"
+      username="condor"
+      password=""
+
+      encoding="windows-1251"
+      
+      prefix="split-dexDeal-"
+      postfix=".data"
+      date-format="yyyyMMdd-hhmmssSSS"
+      dir="/condor/Error/Courier"
+      filename-at-first-line="no"
+
+      overwrite="yes"
+      overwrite-warning="no"
+
+      default-timeout="-1"
+      data-timeout="-1"
+    />
+
+    <source
+      name="claim-sql-xsl"
+      type="xsl"
+      
+      xsl="{xsl file}"
+      schema="{schema file}"
+      target-var="{target var name}"
+    >
+      <xpath-columns not-prepared="no">
+        <namespaces 
+          namespace1="{namespace URI}"
+          namespace2="{namespace URI}"
+        />
+        <column name="{column name}" path="{xpath}"/>
+      </xpath-columns>
+    </source>
+
+    <receiver
+      type="jms"
+      name="jms"
+      
+      context-factory="org.exolab.jms.jndi.InitialContextFactory"
+      provider-url="tcp://localhost:3035"
+      factory-name="ConnectionFactory"
+      destination="STEPIN_TOPIC1"
+      persistent="yes"
+      time-to-live="0"
+      priority="0"
+    />
+
+</db-profiles>
+
+  <source-profiles> ... </source-profiles>
+  <target-profiles> ... </target-profiles>
+
+  <!-- Here is the use of file-receiver !!!! in an attribute target-db -->
+  <pipelines>
+    <pipeline name="dexDealStdUpdateTestArchive"
+      source-db="DataExpress"
+      source-name="StdUpdateTest-ALL-Source"
+      target-db="TCondor-File"
+      target-name="StdUpdateTest-ALL-Target"
+      checkpoint-interval="600"
+      data-logging="yes" data-logging-buffered="no"
+      clear-vars-on-start="{yes/no}"
+    >
+      <description>TestPipe description</description>
+      <base-process source-rule="base" timeout="100000"/>
+    </pipeline>
+  </pipelines>
+</pipelines-config>

@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config>
+
+  <logging dir="conf-dexDeal-log"> ... </logging>
+
+  <db-profiles>
+
+<!--
+  'Stream Data Source' gets data from stream oriented sources and parses result into result set.
+  Both stream sources and parsers can be configured in source tag and in request string 
+  and thus it influences request syntax.
+  Common Request string format:
+    stream-type=<type>: ... parser-type=<type>: ...
+
+  Supported stream sources:
+
+  *************************************************************************
+  - Source tag variant:
+  
+    - Tag parameters:
+
+      <stream type="url"
+        url="{your url}"
+        proxy-host="{your host-name}"
+        proxy-port="0"
+        type-regex="{regular expression}"
+        inverse-type-check="{yes/no}"
+        connect-timeout="0"
+        read-timeout="0"
+
+        http-method="GET"
+        content-type={your content-type}
+        request-content={request-content}
+      />
+
+      url              - (optional) If absent url must be specified in request string
+      proxy-host       - (optional) 
+      proxy-port       - (optional)
+      type-regex       - (optional) Error is raised if content-type does not match regular expression
+      inverse-type-check - (optional) inverse content type check
+      connect-timeout  - (optional) By default 0. A timeout of zero is interpreted as an infinite timeout.
+      read-timeout     - (optional) By default 0. A timeout of zero is interpreted as an infinite timeout.
+
+      http-method      - (optional) By default "GET". A verb in http request, case-sensetive.
+      content-type     - (optional) By default "application/x-www-form-urlencoded" for POST request, null for other. "Content-Type" request header.
+      request-content  - (optional) Required for POST request only.
+
+    - Request string parameters:
+      <word-or-bracketed-string:url>
+
+  - Request string variant:
+      Parameters are the same as for tag source variant 
+      in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+    
+  *************************************************************************
+  - Source tag variant:
+  
+    - Tag parameters:
+
+      <stream type="exec"
+        work-dir=""
+      >
+        <env>
+          <var>{var-name}={var-value}</var>
+          ...
+          <var>{var-name}={var-value}</var>
+        </env>
+      </stream>
+
+      work-dir      - (optional) 
+      env           - (optional) describes process environment
+        var         - describes variable in the form: name=value
+
+    - Request string parameters:
+      <word-or-bracketed-string:command>
+
+  - Request string variant:
+    <word-or-bracketed-string:command>
+
+  *************************************************************************
+  - Source tag variant:
+  
+    - Tag parameters:
+
+      <stream type="ssh"
+        host=""
+        port=""
+        username=""
+        password=""
+        command=""
+      >
+
+      host - (optional) If absent url must be specified in request string
+      port - (optional) If absent url must be specified in request string
+      username - (optional) If absent url must be specified in request string
+      password - (optional) If absent url must be specified in request string
+      command - (optional) Command to execute. If absent url must be specified in request string
+
+    - Request string parameters:
+      <word-or-bracketed-string:command>
+
+  - Request string variant:
+    <word-or-bracketed-string:command>
+
+  *************************************************************************
+  - Source tag variant:
+  
+    - Tag parameters:
+
+      <stream type="const"
+        encoding=""
+      >
+        <data>
+          ...
+        </data>
+      </stream>
+
+      data          - (optional) describes stream data as string. 
+                      All parsers using this type of stream should specifiy encoding = UTF-16
+
+    - Request string parameters: none
+
+  - Request string variant:
+      Parameters are the same as for source tag variant 
+      in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  *************************************************************************
+  - Source tag variant:
+  
+    - Tag parameters:
+
+      <stream type="file" file="..."/>
+
+      file          - (optional) specifies data file
+
+    - Request string parameters:
+        Parameters are the same as for source tag 
+        in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  - Request string variant:
+      Parameters are the same as for source tag 
+      in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  *************************************************************************
+  - Source tag variant:
+  
+    - Tag parameters:
+
+      <stream type="ftp" 
+        host=""
+        port=""
+        username=""
+        password=""
+        ascii-type="no"
+        default-timeout="0"
+        data-timeout="0"
+
+        file="..."
+      />
+
+      file          - (optional) specifies data file
+
+    - Request string parameters:
+        Parameters are the same as for source tag 
+        in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  - Request string variant:
+      Parameters are the same as for source tag 
+      in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  *************************************************************************
+
+  Supported parsers:
+
+  *************************************************************************
+  - Parser tag variant:
+  
+    - Tag parameters:
+
+      <parser type="xml">
+        <namespaces>
+          <namespace name="..." url="...">
+          ...
+          <namespace name="..." url="...">
+        </namespaces>
+        <records-path> {XPath} </records-path>
+        <columns fast-xpath="no">
+          <column name="..."> {XPath} </column>
+          ...
+          <column name="..."> {XPath} </column>
+        </columns>
+      </parser>
+
+      records-path     - XPath determining record tags
+      columns          - columns container
+        fast-xpath     - (optional; default = "no") whether to fast simplified XPath
+        column         - (optional) column describer. Inner text contains XPath for column data
+          name         - column name
+
+    - Request string parameters:
+      <blank>+<word-or-bracketed-string:url>
+
+  - Request string variant:
+      Parameters are the same as for tag source variant 
+      in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+    
+  *************************************************************************
+  - Parser tag variant:
+  
+    - Tag parameters:
+
+      <parser type="csv"
+        encoding="cp1251"
+        skip-first-lines="0"
+        skip-template=".*"
+        line-number-title="LineNumber"
+        absent-as-null="no"
+        bracket="'"
+        separator=","
+        trim="no"
+        null-word=""
+      >
+        <fields>
+          <field name="f1" begin="0" end="10"/>
+          <field name="f2" begin="10" end="15"/>
+          ...
+        </fields>
+        <header type="csv | list | numbered" 
+          names="col-aaaa,col-bbbb"
+
+          columns-count="{number}"
+          columns-prefix=""
+        />
+        <const-fields>
+          <param name="Field1" value="Field 1 Example Const Value">
+          ...
+        </const-fields>
+      </parser>
+
+      skip-template - if line matches this regular expression then it will be skipped
+
+
+    - Request string parameters: absent
+
+  - Request string variant: absent
+    
+  *************************************************************************
+  - Parser tag variant:
+  
+    - Tag parameters:
+
+      <parser type="dbf"
+        encoding="..."
+        cancel-trim="no"
+      />
+
+      encoding   - (optional; default = default JVM charset) strings encoding
+      cancel-trim - (optional; default=no) return strings without trimming
+
+    - Request string parameters: absent
+        Parameters are the same as for source tag 
+        in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  - Request string variant: absent
+    
+  *************************************************************************
+  - Parser tag variant:
+  
+    - Tag parameters:
+
+      <parser 
+        type="excel" 
+        sheet-name="..." 
+        left-column="1" 
+        caption-row="1" 
+        need-to-trim="no"
+        date-format="yyyyMMdd HH:mm:ss.SSS"
+        number-format="#.####"
+      >
+        <const-fields>
+          <field name="DocDate" sheet-name="Equity Options Portfolio" column="1" row="1"/>
+        </const-fields>
+      </parser>
+
+      sheet-name     - (optional; default = "1") excel sheet name where data resides
+      left-column    - (optional; default = "1") first column with data
+      right-column   - (optional; defaults to the end of sheet) last column with data
+      caption-row    - (optional; defaults to automatic field name generation) the row with captions
+      data-row       - (optional; defaults to the row after caption-row) first row with data
+      need-to-trim   - (optional; default = "no") whether to trim whitespace characters
+      date-format    - (optional; defaults to no date formatting) 
+                       If specified and parser encounters date cell it formats date according to this template.
+                       For the full format description see Java 2 SimpleDateFormat class description.
+                       For example: "yyyyMMdd HH:mm:ss.SSS"
+      number-format  - (optional; defaults to no number formatting) 
+                       If specified and parser encounters number cell it formats number according to this template.
+                       For the full format description see Java 2 DecimalFormat class description.
+                       For example: 
+                         "#.####" - describes number with 4 optional digits after point.
+                         "#.00" - describes number with 2 mandatory digits after point.
+      stop-at-blank-caption - (optional; default = "no") whether to stop at "blank" caption while selecting data columns
+      skip-caption-reg-exp  - (optional; defaults to no skipping at all) regular expression determining columns to skip
+                              For example to skip columns with blank captions specify "^\s*$"
+      caption-prefix        - if while selecting data columns parser encounters a blank caption 
+                              or caption-row not specified it generates caption in either 
+                              (depending on 'caption-as-number' parameter) of two forms:
+                                - "number"  ==> <caption-prefix><number>  <number> is a column number. 
+                                  For example: Column5
+                                - "letters" ==> <caption-prefix><letters> <letters> is what Excel shows in its header. 
+                                  For example: ColumnBF
+      caption-as-number     - (optional; default = "no") selects "number" caption generating mode (see blank-caption-prefix description)
+    
+      
+      Const Field parameters:
+        name          - field name
+        sheet-name    - (optional; defaults to parser sheet name) excel sheet name where data resides
+        row           - start row
+        column        - start column
+        finish-row    - (optional; default = <row>) finish row. If 'unlimited' then to the end of a sheet.
+        finish-column - (optional; default = <column>) finish column in last search row. 
+                        If 'unlimited' then to the last column of a sheet.
+        pattern       - (optional; default = '.*') reqular expression to select data cell
+                        For example to stop at first not empty cell: \S+
+
+    - Request string parameters: absent
+
+  - Request string variant: absent
+  
+  *************************************************************************
+  - Parser tag variant:
+  
+    - Tag parameters:
+
+      <parser type="null"
+        encoding="cp1251"
+        field-name="..."
+      />
+
+      encoding   - (optional; default=cp1251) encoding used to convert byte stream to string.
+      field-name - (mandatory) field name to place stream content
+
+  - Request string variant:
+    parser-type=null: encoding='cp1251' field-name='...'
+
+    encoding - (optional, default=cp1251) text encoding
+    field-name - (mandatory) field name to place stream content
+
+  *************************************************************************
+  - Parser tag variant:
+  
+    - Tag parameters:
+      
+      <parser type="file"
+        encoding="cp1251"
+        field-name="..."
+      />
+
+      file - (mandatory) file name to place stream content
+      field-name - (mandatory) field name to place file path
+
+    - Request string parameters: absent
+        Parameters are the same as for source tag 
+        in the form: <word><blank>*=<blank>*<word-or-bracketed-string>
+
+  - Request string variant:
+    parser-type=file: file='...' field-name='...'
+
+    file - (mandatory) file name to place stream content
+    field-name - (mandatory) field name to place file path
+
+  *************************************************************************
+  
+-->
+
+    <source
+      name="FileCsvExample"
+      type="stream"
+    >
+      <stream type="file"/>
+
+      <parser type="csv"         
+        separator=","
+        bracket="'"
+        trim="yes"
+        absent-as-null="yes"
+      >
+        <header type="csv"/>
+        <!--
+        <header type="list" names="DealId,DownloadKey,TradeDate"/>
+        <header type="numbered" columns-count="5" columns-prefix="Column"/>
+        -->
+      </parser>
+    </source>
+
+    <source
+      name="FileCsvFixedExample"
+      type="stream"
+    >
+      <stream type="file"/>
+
+      <parser type="csv"         
+        trim="yes"
+        absent-as-null="yes"
+      >
+        <fields>
+          <field name="Date" begin="0" end="10"/>
+          <field name="Price" begin="10" end="15"/>
+        </fields>
+      </parser>
+    </source>
+
+    <source
+      name="UrlXmlExample"
+      type="stream"
+    >
+      <stream type="url" url="http://myhost/deals.jsp"/>
+
+      <parser type="xml">
+        <records-path>/*/deals/deal</records-path>
+        <columns>
+          <column name="SettlementType">../@type</column>
+          <column name="SettlementDate">../@date</column>
+          <column name="DealId">@id</column>
+          <column name="Code">@code</column>
+          <column name="Price">@price</column>
+          <column name="DealDate">@date</column>
+          <column name="Description">desc</column>
+        </columns>
+      </parser>
+    </source>
+
+    <source
+      name="const"
+      type="stream"
+    >
+      <stream type="const">
+        <data><![CDATA[ID,Name
+1,aaaa
+2,bbbb]]></data>
+      </stream>
+      <parser type="csv" separator="," encoding="UTF-16">
+        <header type="csv"/>
+      </parser>
+    </source>
+
+  </db-profiles>
+
+  <source-profiles></source-profiles>
+  <target-profiles></target-profiles>
+  <pipelines></pipelines>
+</pipelines-config>

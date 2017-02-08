@@ -1,0 +1,5 @@
+version - shows version info
+stop - stops courier
+launch <pipe-name> <rule-name> - launches pipeline
+threads <file-name>? - shows thread usage info
+pools <file-name>? - shows pools info

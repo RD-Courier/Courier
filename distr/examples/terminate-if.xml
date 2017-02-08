@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config sys-config="C:/Projects/IT/3D_Projects/Courier/test2/sys-config.xml">
+
+  <logging dir="conf-dexDeal-log"> ... </logging>
+
+  <db-profiles>
+    <database
+      name="TCondor"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:developer:4010/Kustom"
+      username="Reader" password="readerpwd"
+      check-sql="SELECT 1"
+    />
+    <database
+      name="ExternalDb-1"
+      driver="com.sybase.jdbc2.jdbc.SybDriver"
+      url="jdbc:sybase:Tds:developer:4010/ExternalDb-1"
+      username="Reader" password="readerpwd"
+      check-sql="SELECT 1"
+    />
+  </db-profiles>
+
+  <source-profiles>
+    <profile name="source-profile-1" wait-timeout="120">
+      <description>source-profile-1 description</description>
+      <rules>
+        <rule name="base" type="all" interval-column="Deal_Id">
+          <description>test-all description</description>
+          <transform>
+
+            <!-- !!!! EXAMPLE with source db -->
+            <terminate-if value="terminate"><![CDATA[
+select TerminateValue = when count(*) < 100 then 'terminate' else '' end from dexDeal
+            ]]></terminate-if>
+
+            <!-- !!!! EXAMPLE with external db -->
+            <terminate-if db-name="ExternalDb-1" value="1"><![CDATA[
+select TerminateIndicator from ActiveProcesses where ProcessCode = 'la-la-la'
+            ]]></terminate-if>
+
+            <portion type="interval" step="100" max-portion-size="1000000"/>
+            <data-query><![CDATA[
+SELECT *
+FROM dexDeal
+WHERE
+     TradeDate >= convert(varchar(12), getdate(), 112)
+ AND Deal_Id > [%$IntervalValue]
+            ]]></data-query>
+          </transform>
+        </rule>
+      </rules>
+    </profile>
+  </source-profiles>
+
+  <target-profiles>
+    <profile name="dexDealTarget" wait-timeout="120">
+      <description>TestTarget1 description</description>
+      <portion records="100">
+        <before>select 1</before>
+      </portion>
+      <rules var="TableType">
+        <rule value="Rejected"></rule>
+        <rule value="Unrecognized">
+          <send-mail
+            smtp-host="magician.example.ru"
+            from-addr="CourierSystem@example.ru"
+            from-name="Courier System"
+            to="Alexander_Stepochkin@example.ru"
+            subject="Deal has not been recognized"
+          >Deal: Deal_Id=[%Deal_Id] has not been recognized</send-mail>
+          <operation>[%main-template]</operation>
+        </rule>
+        <else>
+          <operation>[%main-template]</operation>
+        </else>
+      </rules>
+    </profile>
+  </target-profiles>
+
+  <pipelines>
+    <pipeline name="dexDeal (DataExpress-Kustom)" 
+      source-db="system-db" source-name="dexDealSource" 
+      target-db="TCondor" target-name="dexDealTarget"
+      checkpoint-interval="600" mark-type="i"
+      data-logging="yes" data-logging-buffered="no"
+    >
+      <description>TestPipe description</description>
+      <base-process source-rule="base" timeout="15"/>
+    </pipeline>
+  </pipelines>
+</pipelines-config>

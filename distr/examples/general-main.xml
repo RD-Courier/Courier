@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+
+<!--  
+system-db-file - (default - "system-db.xml") file which Courier will store its system properties to,
+                 for example pipeline persistent properties like $IntervalValue and $PipeValue.
+
+program-name - (optional) application name for Databases
+common-databases - (optional) file of common database descriptions
+accounts-file - (optional) specifies encrypted xml file containing db-profile accounts. Format described in accounts-format.xml document file.
+common-accounts-file - (optional) the same as "accounts-file" but for common (shared by different couriers) accounts.
+
+enable-database-pools-restrictions - (default - "no") sets max capacity parameter 
+                                     for data links according pipeline data link usage info
+check-used-databases - (default - "yes") disables pipeline if it uses data link which is not declared
+skip-unused-pools - (default - "no") warns about unused data links
+
+default-config - default configuration file. If it is not specified, java system property COURIER_DEFAULT_CONFIG is used if present.
+
+schedule-files-check-interval - (default = "5s")
+host-schedule-file - file with host schedules. If pipeline uses database operating against a host then it will work according this host schedule
+work-days-file - file containing days that are not weekends
+important-pipes-file - file containing pipelines that ignore host schedules
+-->
+
+<pipelines-config
+  system-db-file="system-db.xml"
+  program-name="Courier"
+  common-accounts-file="..."
+  accounts-file="..."
+  enable-database-pools-restrictions="yes"
+  check-used-databases="no"
+  skip-unused-pools="no"
+
+  schedule-files-check-interval="5s"
+  host-schedule-file="schedule-host.cfg"
+  work-days-file="schedule-work-days.cfg"
+  important-pipes-file="schedule-important-pipes.cfg"
+>
+
+<!--
+  external-config  - inserts 
+                     db-profiles, source-profiles, target-profiles, pipelines 
+                     of ecternal file into corresponding tags of current file
+  insert-file  - replace this tag by external file content as text node
+  insert-tag  - replace this tag by xpath results (optionally from external file when with "doc" attribute)
+      doc - (optional: default = current xml file)
+      xpath - (optional: default = "/*") selects nodes to insert
+-->
+  <external-config file="???"/>
+  <insert-file file="{file name}"/>
+  <insert-tag doc="{file name}" xpath="{xpath expression}"/>
+
+  <init-calls>
+    <call 
+      class="{java class name}" method="{static method name}" 
+    />
+    ...
+  </init-calls>
+
+<!--
+    !!! CourierManager version 1.00 or higher !!!
+    
+    host - (optional, universe1) manager host
+    port - (optional, 4448) manager port
+    timeout - IO timeout
+    try-connect-interval - interval to try to connect to manager
+    max-count - process result buffer size
+    stat-buffer-interval - interval to accumulate statistics before sending to manager
+-->
+  
+  <manager
+    host="universe1"
+    port="4448"
+    timeout="3s"
+    try-connect-interval="5s"
+    max-count="100"
+    stat-buffer-interval="10s"
+  />
+
+  <logging> ... <!-- see logging.xml --> </logging>
+  <db-profiles> ... <!-- see db-profiles.xml --> </db-profiles>
+  <source-profiles> ... <!-- see general-source-profile.xml --> </source-profiles>
+  <target-profiles> ... <!-- see general-target-profiles.xml --> </target-profiles>
+  <pipelines> ... <!-- see general-pipe.xml --> </pipelines>
+</pipelines-config>

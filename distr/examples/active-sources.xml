@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="windows-1251" ?> 
+<pipelines-config>
+
+  <logging> ... </logging>
+  <db-profiles> ... </db-profiles>
+
+  <pipelines>
+
+    ...
+    
+<!--
+      check-interval - (optional, 60s) interval to check if source in valid state (for example connected)
+      start-stop-timeout - (optional, 10s) timeout for start/stop activities
+      max-message-count - (optional, 0) if count of currently processed messages >= this value 
+                          source stops to receive messages until the count <= this max / 2.
+                          Note that 0 means no limit.
+
+      lost-connection-regex - regular expresion to spot disconnect message
+      context-factory - initial JNDI context factory
+      provider-url - URL to get initial JNDI context
+      factory-name - JNDI Connection Factory name
+      destination - Queue or Topic name
+-->
+    
+    <active-source 
+      type="jms"
+
+      check-interval="10s"
+      start-stop-timeout="30s"
+      max-message-count="0"
+
+      lost-connection-regex="(?i:Lost\s+connection)"
+      context-factory="org.exolab.jms.jndi.InitialContextFactory"
+      provider-url="tcp://10.10.96.165:3035"
+      factory-name="ConnectionFactory"
+      destination="queue2"
+    />
+
+  </pipelines>
+
+  <source-profiles> ... </source-profiles>
+  <target-profiles> ... </target-profiles>
+
+</pipelines-config>
