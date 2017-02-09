@@ -54,15 +54,7 @@ public class JdbcStringSource extends JdbcStringReceiver implements DataSource {
     private ResultSet findFirstRs(boolean res, Statement stmt) throws SQLException {
 
         while (true) {
-            if (res) {
-                ResultSet rs = stmt.getResultSet();
-                RowSetFactory aFactory = RowSetProvider.newFactory();
-                CachedRowSet crs = aFactory.createCachedRowSet();
-                crs.populate(rs);
-                //Проверка на ошибки после первого резалтсета
-                while (stmt.getMoreResults());
-                return crs;
-            }
+            if (res) if (res) return stmt.getResultSet();
             if (stmt.getUpdateCount() == -1) return new EmptyResultSet();
             res = stmt.getMoreResults();
         }

@@ -42,8 +42,8 @@ import java.util.Date;
  */
 public class Version {
     private static final String c_CourierVersion = "7.25";
-    private static final String c_CourierBuildNumber = "608";
-    private static final String c_CourierBuildTime = "20170130 1541";
+    private static final String c_CourierBuildNumber = "609";
+    private static final String c_CourierBuildTime = "20170209 1103";
 
     private static final String c_CvsDateFormat = "yyyyMMdd HHmm";
 
