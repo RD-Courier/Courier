@@ -966,7 +966,7 @@ public final class Application implements CourierContext, ProcedureProvider {
         long checkInterval = StringHelper.parseTime(getParam("console-command-file-check-interval", "5s"));
         StringSimpleParser p = new StringSimpleParser();
         while(filePath != null) {
-            File file = new File(filePath);            
+            File file = getAppFile(filePath);            
             Thread.sleep(checkInterval);
             //System.out.println("console-command-file: " + filePath);
             //System.out.println("console-command-file-check-interval: " + String.valueOf(checkInterval));
